@@ -28,10 +28,10 @@ const exercises = XLSX.utils.sheet_to_json<Record<string, any>>(wb.Sheets['Cviky
   }
 })
 
-;(async () => {
+;(async () => { try {
   const e1 = await db.from('equipment').upsert(equipment.filter((e) => e.name !== 'vlastní váha'))
   if (e1.error) throw e1.error
   const e2 = await db.from('exercises').upsert(exercises, { onConflict: 'name' })
   if (e2.error) throw e2.error
   console.log(`Importováno: ${exercises.length} cviků, ${equipment.length - 1} pomůcek`)
-})()
+} catch (e) { console.error(JSON.stringify(e)); process.exit(1) } })()
