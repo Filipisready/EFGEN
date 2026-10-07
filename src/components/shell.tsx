@@ -10,6 +10,7 @@ export function Shell({ profile, children }: { profile: Profile; children: React
       <header className="border-b border-neutral-200 dark:border-neutral-800">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-1 px-4 py-2">
           <Link href="/app" className="mr-3 text-lg font-bold">EFGEN</Link>
+          <Link href="/app/novy" className={link}>Nový trénink</Link>
           {profile.role === 'admin' && (
             <>
               <Link href="/admin/cviky" className={link}>Cviky</Link>
