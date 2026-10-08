@@ -39,6 +39,7 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
   const [workout, setWorkout] = useState<GeneratedWorkout | null>(null)
   const [genError, setGenError] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
+  const [restored, setRestored] = useState(false)
   const [pending, start] = useTransition()
   const resRef = useRef<HTMLDivElement>(null)
 
@@ -46,13 +47,17 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
   useEffect(() => {
     try {
       const s = JSON.parse(localStorage.getItem(STORE) ?? '{}')
-      if (Array.isArray(s.eq)) setEq(s.eq.filter((x: string) => equipment.some((o) => o.name === x)))
+      if (Array.isArray(s.eq)) {
+        const kept = s.eq.filter((x: string) => equipment.some((o) => o.name === x))
+        setEq(kept)
+        setRestored(kept.length > 0)
+      }
       if (s.environment === 'uvnitř' || s.environment === 'venku') setEnvironment(s.environment)
       if (['začátečník', 'pokročilý', 'expert'].includes(s.level)) setLevel(s.level)
     } catch { /* ignorujeme */ }
   }, [equipment])
 
-  const toggle = (arr: string[], set: (v: string[]) => void, v: string) => set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v])
+  const toggle = (arr: string[], set: (v: string[]) => void, v: string) => { setRestored(false); set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]) }
   const cf = format === 'CrossFit'
   const mainTotal = cf ? segs.reduce((a, x) => a + (Number(x.minutes) || 0), 0) : Number(main) || 0
   const total = (Number(warmup) || 0) + mainTotal + (Number(cooldown) || 0)
@@ -133,7 +138,14 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
         </div>
 
         {group('Svalové partie (nevybráno = všechny)', MUSCLES.map((m) => <Chip key={m} checked={muscles.includes(m)} onChange={() => toggle(muscles, setMuscles, m)}>{m}</Chip>))}
-        {group('Dostupné pomůcky (vlastní váha je vždy k dispozici)', visibleEq.map((o) => <Chip key={o.name} checked={eq.includes(o.name)} onChange={() => toggle(eq, setEq, o.name)}>{eqLabel(o)}</Chip>))}
+        <div className="space-y-2">
+          {group('Dostupné pomůcky (vlastní váha je vždy k dispozici)', visibleEq.map((o) => <Chip key={o.name} checked={eq.includes(o.name)} onChange={() => toggle(eq, setEq, o.name)}>{eqLabel(o)}</Chip>))}
+          {restored && (
+            <p className="text-sm text-neutral-500">Předvyplněno podle posledního tréninku.{' '}
+              <button type="button" className="underline" onClick={() => { setEq(format === 'TRX' ? ['TRX'] : []); setRestored(false) }}>Vymazat výběr</button>
+            </p>
+          )}
+        </div>
 
         <div className="space-y-2">
           <label className="text-sm font-medium" htmlFor="ks">Kardio ↔ síla: <b>{KS[ks - 1]}</b></label>
