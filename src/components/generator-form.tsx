@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 import { generateAction } from '@/lib/generator-actions'
 import type { GeneratedWorkout, GeneratorInput } from '@/lib/generator/types'
 import { WorkoutEditor } from '@/components/workout-editor'
+import { ExportBar } from '@/components/export-bar'
 import { Alert, Field, btnCls, btn2Cls, inputCls } from '@/components/ui'
 
 const MUSCLES = ['nohy', 'záda', 'core', 'hrudník', 'ramena', 'paže']
@@ -179,6 +180,7 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
         {workout && (
           <div className="space-y-3">
             <WorkoutEditor workout={workout} onChange={(w) => { setWorkout(w); setDirty(true) }} />
+            <ExportBar workout={workout} />
             <button type="button" onClick={submit} disabled={pending} className={btn2Cls}>{pending ? 'Generuji…' : 'Přegenerovat se stejným zadáním'}</button>
           </div>
         )}
