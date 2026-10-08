@@ -15,13 +15,18 @@ async function origin() {
   return h.get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 }
 
-function czError(message: string) {
+function czError(message: string, code?: string) {
   const m = message.toLowerCase()
+  if (code === 'over_email_send_rate_limit' || m.includes('email rate limit')) return 'Bylo odesláno příliš mnoho e-mailů. Zkuste to za hodinu.'
+  if (code === 'email_address_invalid' || m.includes('email address') && m.includes('invalid')) return 'Tato e-mailová adresa není platná nebo ji nelze použít.'
+  if (code === 'signup_disabled') return 'Registrace je dočasně vypnutá.'
+  if (code === 'weak_password' || m.includes('password should')) return 'Heslo je příliš slabé. Použijte alespoň 8 znaků včetně písmen a číslic.'
+  if (code === 'unexpected_failure' || m.includes('error sending') || m.includes('smtp')) return 'Nepodařilo se odeslat ověřovací e-mail. Zkuste to prosím později.'
   if (m.includes('invalid login')) return 'Nesprávný e-mail nebo heslo.'
   if (m.includes('email not confirmed')) return 'E-mail ještě není ověřený. Zkontrolujte schránku.'
   if (m.includes('rate limit') || m.includes('too many')) return 'Příliš mnoho pokusů. Zkuste to za chvíli.'
   if (m.includes('same password') || m.includes('different from the old')) return 'Nové heslo musí být jiné než staré.'
-  return 'Něco se nepovedlo. Zkuste to prosím znovu.'
+  return `Něco se nepovedlo. Zkuste to prosím znovu.${code ? ` (kód: ${code})` : ''}`
 }
 
 export async function login(_: FormState, fd: FormData): Promise<FormState> {
@@ -43,7 +48,10 @@ export async function register(_: FormState, fd: FormData): Promise<FormState> {
     ...parsed.data,
     options: { emailRedirectTo: `${await origin()}/auth/potvrzeni?next=/app` },
   })
-  if (error) return { error: czError(error.message) }
+  if (error) {
+    console.error('[register] signUp selhalo:', error.status, error.code, error.message)
+    return { error: czError(error.message, error.code) }
+  }
   // Stejná odpověď i pro již registrovaný e-mail (nevyzrazujeme, kdo účet má).
   return { ok: 'Hotovo. Poslali jsme vám e-mail s odkazem pro ověření adresy. Po jeho potvrzení se můžete přihlásit.' }
 }
