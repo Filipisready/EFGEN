@@ -36,6 +36,8 @@ export type GeneratorInput = {
 export type WorkoutExercise = {
   id: string
   name: string
+  /** Alternativní (anglický) název, v CrossFitu se zobrazí v závorce. */
+  altName?: string
   description: string
   videoUrl: string | null
   muscle: string

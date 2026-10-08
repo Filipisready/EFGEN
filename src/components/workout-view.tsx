@@ -33,6 +33,7 @@ export function WorkoutView({ w }: { w: GeneratedWorkout }) {
                 <div className="min-w-0">
                   <p className="text-lg font-medium leading-snug">
                     {e.name}
+                    {w.format === 'CrossFit' && e.altName && e.altName.toLowerCase() !== e.name.toLowerCase() && <span className="font-normal text-neutral-500"> ({e.altName})</span>}
                     {e.valueText && <span className="ml-2 rounded bg-neutral-100 px-2 py-0.5 text-base font-semibold dark:bg-neutral-800">{e.valueText}</span>}
                     {e.note && <span className="ml-2 text-sm font-normal text-neutral-500">({e.note})</span>}
                   </p>
