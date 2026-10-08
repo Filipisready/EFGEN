@@ -51,8 +51,10 @@ export default function Page() {
         <li><b>Resend</b> – odesílání e-mailů (ověření účtu, obnova hesla, trénink poslaný na vaši adresu).</li>
       </ul>
       <p>
-        Někteří z těchto poskytovatelů mohou údaje zpracovávat i mimo Evropský hospodářský prostor (zejména v USA). V takovém případě se
-        předání opírá o odpovídající záruky podle GDPR, například standardní smluvní doložky nebo rámec EU–USA pro ochranu údajů.
+        Data jsou uložena a zpracovávána v Evropské unii: databáze Supabase a odesílání e-mailů přes Resend běží v evropském regionu a
+        aplikace na Vercelu ve Frankfurtu. Poskytovatelé jsou však americké společnosti, takže při podpoře či správě služby není vyloučen
+        přístup z USA. Ten se řídí odpovídajícími zárukami podle GDPR, například standardními smluvními doložkami nebo rámcem EU–USA pro
+        ochranu údajů.
       </p>
 
       <H2>4. Cookies a úložiště v prohlížeči</H2>
