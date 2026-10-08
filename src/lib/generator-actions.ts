@@ -16,6 +16,7 @@ const schema = z.object({
   environment: z.enum(['uvnitř', 'venku']),
   format: z.enum(['Tabata', 'TRX', 'CrossFit']),
   subtype: z.enum(['AMRAP', 'EMOM', 'For Time']).optional(),
+  segments: z.array(z.object({ type: z.enum(['AMRAP', 'EMOM', 'For Time']), minutes: num(1, 60) })).min(1).max(4).optional(),
   warmupMin: num(0, 30),
   mainMin: num(1, 90),
   cooldownMin: num(0, 30),
@@ -35,5 +36,7 @@ export async function generateAction(raw: unknown): Promise<GenerateResult> {
   const supabase = await createClient()
   const { data, error } = await supabase.from('exercises').select('*').eq('active', true).limit(2000).returns<Exercise[]>()
   if (error || !data) return { ok: false, error: 'Knihovnu cviků se nepodařilo načíst. Zkuste to znovu.' }
-  return generateWorkout(data, parsed.data)
+  const input = parsed.data
+  if (input.format === 'CrossFit' && input.segments) input.mainMin = input.segments.reduce((a, x) => a + x.minutes, 0)
+  return generateWorkout(data, input)
 }

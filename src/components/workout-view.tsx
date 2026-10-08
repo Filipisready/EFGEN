@@ -14,7 +14,7 @@ export function WorkoutView({ w }: { w: GeneratedWorkout }) {
           {w.groupSize && <> · {w.groupSize} osob</>}
         </p>
         <p className="text-sm text-neutral-500">
-          {w.blocks.map((b) => `${NAMES[b.key]} ${b.minutes} min`).join(' · ')}
+          {w.blocks.map((b) => `${b.label ?? NAMES[b.key]} ${b.label ? '' : b.minutes + ' min'}`.trim()).join(' · ')}
         </p>
       </header>
       {w.warnings.map((m) => (
@@ -23,7 +23,7 @@ export function WorkoutView({ w }: { w: GeneratedWorkout }) {
       {w.blocks.map((b) => (
         <section key={b.key} className="space-y-3">
           <div>
-            <h3 className="text-xl font-semibold">{NAMES[b.key]} <span className="text-base font-normal text-neutral-500">· {b.minutes} min</span></h3>
+            <h3 className="text-xl font-semibold">{b.label ? `Hlavní část: ${b.label}` : NAMES[b.key]} {!b.label && <span className="text-base font-normal text-neutral-500">· {b.minutes} min</span>}</h3>
             <p className="text-sm text-neutral-500">{b.structure}</p>
           </div>
           <ol className="space-y-3">

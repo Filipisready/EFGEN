@@ -71,12 +71,26 @@ export async function deleteExercise(id: string) {
 
 export async function addEquipment(fd: FormData) {
   await requireAdmin()
-  const parsed = z.object({ name: z.string().trim().min(2).max(60), note: z.preprocess(emptyToNull, z.string().trim().max(200).nullable()) })
-    .safeParse({ name: fd.get('name'), note: fd.get('note') })
-  if (!parsed.success) redirect('/admin/pomucky?chyba=' + encodeURIComponent('Zadejte název pomůcky (min. 2 znaky).'))
+  const formats = fd.getAll('formats').map(String).filter((f) => (FORMATS as readonly string[]).includes(f))
+  const parsed = z.object({ name: z.string().trim().min(2).max(60), note: z.preprocess(emptyToNull, z.string().trim().max(200).nullable()), cf_label: z.preprocess(emptyToNull, z.string().trim().max(60).nullable()) })
+    .safeParse({ name: fd.get('name'), note: fd.get('note'), cf_label: fd.get('cf_label') })
+  if (!parsed.success || !formats.length) redirect('/admin/pomucky?chyba=' + encodeURIComponent('Zadejte název pomůcky (min. 2 znaky) a vyberte alespoň jeden formát.'))
   const supabase = await createClient()
-  const { error } = await supabase.from('equipment').insert(parsed.data)
+  const { error } = await supabase.from('equipment').insert({ ...parsed.data, formats })
   if (error) redirect('/admin/pomucky?chyba=' + encodeURIComponent(error.code === '23505' ? 'Taková pomůcka už existuje.' : 'Uložení se nepovedlo.'))
+  revalidatePath('/admin/pomucky')
+  redirect('/admin/pomucky')
+}
+
+export async function updateEquipment(name: string, fd: FormData) {
+  await requireAdmin()
+  const formats = fd.getAll('formats').map(String).filter((f) => (FORMATS as readonly string[]).includes(f))
+  const parsed = z.object({ note: z.preprocess(emptyToNull, z.string().trim().max(200).nullable()), cf_label: z.preprocess(emptyToNull, z.string().trim().max(60).nullable()) })
+    .safeParse({ note: fd.get('note'), cf_label: fd.get('cf_label') })
+  if (!parsed.success || !formats.length) redirect('/admin/pomucky?chyba=' + encodeURIComponent('Vyberte alespoň jeden formát a zkontrolujte pole.'))
+  const supabase = await createClient()
+  const { error } = await supabase.from('equipment').update({ ...parsed.data, formats }).eq('name', name)
+  if (error) redirect('/admin/pomucky?chyba=' + encodeURIComponent('Uložení se nepovedlo.'))
   revalidatePath('/admin/pomucky')
   redirect('/admin/pomucky')
 }

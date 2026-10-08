@@ -19,7 +19,9 @@ export type GeneratorInput = {
   equipment: string[] // dostupné pomůcky; „vlastní váha“ je vždy k dispozici
   environment: 'uvnitř' | 'venku'
   format: Format
-  subtype?: Subtype // jen CrossFit
+  subtype?: Subtype // jen CrossFit, jedna část
+  /** CrossFit: části hlavního tréninku, např. AMRAP 20 min + EMOM 10 min. Má přednost před subtype a mainMin. */
+  segments?: { type: Subtype; minutes: number }[]
   warmupMin: number
   mainMin: number
   cooldownMin: number
@@ -48,6 +50,8 @@ export type WorkoutExercise = {
 export type WorkoutBlock = {
   key: BlockKey
   minutes: number
+  /** Popisek části hlavního tréninku, např. „AMRAP 20 min“. */
+  label?: string
   /** Časová struktura bloku čitelná pro člověka. */
   structure: string
   exercises: WorkoutExercise[]

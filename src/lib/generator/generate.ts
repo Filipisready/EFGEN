@@ -47,6 +47,7 @@ function pickSequence(pool: Exercise[], n: number, rng: Rng, opts: {
   targetK?: number
   muscles?: string[] // preferované partie
   tabata?: boolean
+  groupLevel?: string // cviky vlastní úrovně skupiny mají přednost před o stupeň nižšími
   maxFromGroupB?: { isB: (e: Exercise) => boolean; max: number }
 }): Exercise[] {
   const chosen: Exercise[] = []
@@ -60,6 +61,7 @@ function pickSequence(pool: Exercise[], n: number, rng: Rng, opts: {
     const allCovered = !preferred || [...preferred].every((m) => covered.has(m))
     const weights = cands.map((e) => {
       let w = 1
+      if (opts.groupLevel && e.level !== opts.groupLevel) w *= 0.35
       if (opts.targetK) w *= Math.exp(-0.6 * Math.abs(e.cardio_strength - opts.targetK))
       if (preferred) {
         const hit = preferred.has(e.muscle)
@@ -83,7 +85,7 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
   const avail = new Set(input.equipment)
   const levels = allowedLevels(input.level)
 
-  if (input.mainMin < 1) return { ok: false, error: 'Zadejte délku hlavní části (alespoň 1 minutu).' }
+  if (input.format !== 'CrossFit' && input.mainMin < 1) return { ok: false, error: 'Zadejte délku hlavní části (alespoň 1 minutu).' }
   if (input.format === 'TRX' && !avail.has('TRX')) return { ok: false, error: 'Pro formát TRX zaškrtněte mezi pomůckami TRX.' }
 
   // Společné tvrdé filtry: aktivní, prostředí, pomůcky, úroveň.
@@ -99,44 +101,56 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
   // Rozcvička a zklidnění nejsou vázány na úroveň skupiny shora (PRD 6.5, pravidla 5 a 6): stačí, že cvik není těžší než skupina.
   const lowerOrEqual = base.filter((e) => RANK[e.level as Level] <= RANK[input.level])
 
-  // Hlavní část
-  const n = mainCount(input.format, input.subtype, input.mainMin, params)
+  // Hlavní část: u CrossFitu může mít několik částí (např. AMRAP 20 min + EMOM 10 min).
+  const segments = input.format === 'CrossFit'
+    ? (input.segments?.length ? input.segments : [{ type: input.subtype ?? 'AMRAP', minutes: input.mainMin }])
+    : [{ type: undefined, minutes: input.mainMin }]
+  if (segments.some((sg) => !(sg.minutes >= 1))) return { ok: false, error: 'Zadejte délku hlavní části (alespoň 1 minutu).' }
+
   let mainPool = byLevel.filter((e) => e.blocks.includes('hlavní') && e.formats.includes(input.format))
   diag.push({ label: `s rolí hlavní části a formátem ${input.format}`, count: mainPool.length })
-  let groupB: { isB: (e: Exercise) => boolean; max: number } | undefined
-  if (input.format === 'TRX') {
+  const trx = input.format === 'TRX'
+  if (trx) {
     // Pravidlo 1: min. 80 % cviků s pomůckou TRX, zbytek vlastní váha. Jiné pomůcky se nepoužijí.
     mainPool = mainPool.filter((e) => e.equipment.includes('TRX') || e.equipment.length === 0)
-    groupB = { isB: (e) => !e.equipment.includes('TRX'), max: Math.floor(n * 0.2) }
   }
   if (!mainPool.length) return { ok: false, error: explain(input, diag) }
 
-  const mainEx = pickSequence(mainPool, n, rng, {
-    targetK: input.cardioStrength, muscles: input.muscles, tabata: input.format === 'Tabata', maxFromGroupB: groupB,
-  })
-  if (mainEx.length < n) {
-    warnings.push(`Pro zadání je v knihovně jen ${mainEx.length} vhodných cviků z doporučených ${n}. ${explain(input, diag)}`)
+  const mainBlocks: WorkoutBlock[] = []
+  const allMain: Exercise[] = []
+  for (const sg of segments) {
+    const n = mainCount(input.format, sg.type, sg.minutes, params)
+    const pool = mainPool.filter((e) => !allMain.includes(e))
+    const groupB = trx ? { isB: (e: Exercise) => !e.equipment.includes('TRX'), max: Math.floor(n * 0.2) } : undefined
+    const ex = pickSequence(pool, n, rng, {
+      targetK: input.cardioStrength, muscles: input.muscles, tabata: input.format === 'Tabata', maxFromGroupB: groupB, groupLevel: input.level,
+    })
+    allMain.push(...ex)
+    const label = sg.type ? `${sg.type} ${sg.minutes} min` : undefined
+    if (ex.length < n) {
+      warnings.push(`${label ? label + ': ' : ''}v knihovně je jen ${ex.length} vhodných cviků z doporučených ${n}. ${explain(input, diag)}`)
+    }
+    const sec = totalMainSeconds(input.format, sg.type, sg.minutes, ex.length || 1, params)
+    const blk: WorkoutBlock = {
+      key: 'hlavní', minutes: sg.minutes, label,
+      structure: mainStructure(input.format, sg.type, sg.minutes, ex.length, params),
+      exercises: ex.map((e, i) => {
+        const w = toWorkoutExercise(e, input.format === 'CrossFit')
+        if (sg.type === 'EMOM') {
+          const mins: number[] = []
+          for (let m = 1; m <= sg.minutes; m++) if ((m - 1) % ex.length === i) mins.push(m)
+          w.note = `minuty ${mins.join(', ')}`
+        }
+        return w
+      }),
+    }
+    if (Math.abs(sec - sg.minutes * 60) > 60 && (input.format === 'Tabata' || input.format === 'TRX')) {
+      blk.minutes = Math.round((sec / 60) * 10) / 10
+      warnings.push(`Struktura formátu vychází na ${fmtSec(sec)} (zadáno ${sg.minutes} min), čas hlavní části jsme upravili.`)
+    }
+    mainBlocks.push(blk)
   }
-  const mainSec = totalMainSeconds(input.format, input.subtype, input.mainMin, mainEx.length || 1, params)
-
-  const mainBlock: WorkoutBlock = {
-    key: 'hlavní', minutes: input.mainMin,
-    structure: mainStructure(input.format, input.subtype, input.mainMin, mainEx.length, params),
-    exercises: mainEx.map((e, i) => {
-      const w = toWorkoutExercise(e, input.format === 'CrossFit')
-      if (input.subtype === 'EMOM' && input.format === 'CrossFit') {
-        const k = mainEx.length
-        const mins: number[] = []
-        for (let m = 1; m <= input.mainMin; m++) if ((m - 1) % k === i) mins.push(m)
-        w.note = `minuty ${mins.join(', ')}`
-      }
-      return w
-    }),
-  }
-  if (Math.abs(mainSec - input.mainMin * 60) > 60 && (input.format === 'Tabata' || input.format === 'TRX')) {
-    mainBlock.minutes = Math.round((mainSec / 60) * 10) / 10
-    warnings.push(`Struktura formátu vychází na ${fmtSec(mainSec)} (zadáno ${input.mainMin} min), čas hlavní části jsme upravili.`)
-  }
+  const mainEx = allMain
 
   // Rozcvička (pravidlo 5) a zklidnění (pravidlo 6)
   const blocks: WorkoutBlock[] = []
@@ -151,7 +165,7 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
     const ordered = [...sel.filter((e) => e.muscle === 'celé tělo'), ...sel.filter((e) => e.muscle !== 'celé tělo')]
     blocks.push(block('rozcvička', input.warmupMin, ordered))
   }
-  blocks.push(mainBlock)
+  blocks.push(...mainBlocks)
   if (input.cooldownMin > 0) {
     const usedWarm = new Set(blocks.flatMap((b) => b.exercises.map((x) => x.id)))
     const pool = lowerOrEqual.filter((e) => e.blocks.includes('zklidnění') && e.cardio_strength === 2 && e.level !== 'expert' && e.movement !== 'skok' && !mainEx.includes(e) && !usedWarm.has(e.id))
@@ -162,13 +176,13 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
   }
 
   const total = Math.round(blocks.reduce((a, b) => a + b.minutes, 0) * 10) / 10
-  const label = input.format === 'CrossFit' ? `CrossFit ${input.subtype ?? 'AMRAP'}` : input.format
+  const label = input.format === 'CrossFit' ? `CrossFit ${[...new Set(segments.map((x) => x.type))].join(' + ')}` : input.format
   return {
     ok: true,
     workout: {
       title: input.title?.trim() || `${label} ${new Date().toLocaleDateString('cs-CZ')}`,
       date: DAY(), groupName: input.groupName?.trim() || undefined, groupSize: input.groupSize,
-      format: input.format, subtype: input.format === 'CrossFit' ? input.subtype ?? 'AMRAP' : undefined,
+      format: input.format, subtype: input.format === 'CrossFit' && segments.length === 1 ? segments[0].type : undefined,
       totalMinutes: total, blocks, params, warnings,
     },
   }

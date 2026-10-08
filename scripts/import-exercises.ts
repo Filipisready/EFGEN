@@ -13,7 +13,7 @@ const list = (v: unknown) => String(v ?? '').split(',').map((s) => s.trim()).fil
 
 const equipment = XLSX.utils.sheet_to_json<Record<string, string>>(wb.Sheets['Pomucky'])
   .filter((r) => r.pomucka && r.poznamka)
-  .map((r) => ({ name: r.pomucka, note: r.poznamka }))
+  .map((r) => ({ name: r.pomucka, note: r.poznamka, cf_label: r.cf_nazev ?? null, formats: list(r.zobrazit_v).length ? list(r.zobrazit_v) : ['Tabata', 'TRX', 'CrossFit'] }))
 const known = new Set(equipment.map((e) => e.name))
 
 const exercises = XLSX.utils.sheet_to_json<Record<string, any>>(wb.Sheets['Cviky']).map((r) => {

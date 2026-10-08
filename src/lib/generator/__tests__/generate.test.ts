@@ -101,3 +101,34 @@ test('vybrané partie mají přednost', () => {
   const main = r.workout.blocks.find((b) => b.key === 'hlavní')!.exercises
   assert.ok(main.filter((e) => e.muscle === 'záda').length >= 2)
 })
+
+test('CrossFit: kombinace AMRAP 20 + EMOM 10 jako dvě části bez opakování cviků', () => {
+  const r = gen({ format: 'CrossFit', segments: [{ type: 'AMRAP', minutes: 20 }, { type: 'EMOM', minutes: 10 }], warmupMin: 5, cooldownMin: 5, equipment: ['činky', 'kettlebell', 'bedna', 'osa', 'hrazda', 'švihadlo', 'medicinbal'], level: 'pokročilý' })
+  assert.ok(r.ok)
+  const parts = r.workout.blocks.filter((b) => b.key === 'hlavní')
+  assert.equal(parts.length, 2)
+  assert.equal(parts[0].label, 'AMRAP 20 min'); assert.equal(parts[1].label, 'EMOM 10 min')
+  assert.equal(parts[0].exercises.length, 5); assert.equal(parts[1].exercises.length, 2)
+  assert.equal(r.workout.totalMinutes, 40)
+  assert.ok(parts[1].exercises.every((e) => e.note?.startsWith('minuty')))
+  const names = r.workout.blocks.flatMap((b) => b.exercises.map((e) => e.name))
+  assert.equal(new Set(names).size, names.length)
+  assert.match(r.workout.title, /AMRAP \+ EMOM/)
+})
+
+test('CrossFit: pomůcky se neuvádějí, pokud nejsou zvolené (kruhy, sáně, GHD)', () => {
+  const r = gen({ format: 'CrossFit', segments: [{ type: 'For Time', minutes: 12 }], equipment: ['činky'], level: 'pokročilý' })
+  assert.ok(r.ok)
+  const used = r.workout.blocks.flatMap((b) => b.exercises.flatMap((e) => e.equipment))
+  assert.ok(used.every((x) => x === 'činky'))
+})
+
+test('CrossFit nikdy nevybere cvik s pomůckou TRX, bosu, lano, roller ani stepper', () => {
+  const banned = ['TRX', 'bosu', 'lano', 'roller', 'stepper']
+  const eq = ALL_EQ.filter((x) => !banned.includes(x))
+  for (let i = 0; i < 40; i++) {
+    const r = gen({ format: 'CrossFit', segments: [{ type: 'AMRAP', minutes: 15 }, { type: 'EMOM', minutes: 8 }], equipment: eq, seed: 500 + i, level: 'expert' })
+    assert.ok(r.ok)
+    for (const b of r.workout.blocks) for (const e of b.exercises) assert.ok(!e.equipment.some((x) => banned.includes(x)), e.name)
+  }
+})
