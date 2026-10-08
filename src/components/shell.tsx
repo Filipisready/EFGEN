@@ -11,13 +11,15 @@ export function Shell({ profile, children }: { profile: Profile; children: React
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-1 px-4 py-2">
           <Link href="/app" className="mr-3 text-lg font-bold">EFGEN</Link>
           <Link href="/app/novy" className={link}>Nový trénink</Link>
+          <Link href="/app/historie" className={link}>Historie</Link>
           {profile.role === 'admin' && (
             <>
               <Link href="/admin/cviky" className={link}>Cviky</Link>
               <Link href="/admin/pomucky" className={link}>Pomůcky</Link>
+              <Link href="/admin/uzivatele" className={link}>Uživatelé</Link>
             </>
           )}
-          <span className="ml-auto hidden text-sm text-neutral-500 sm:inline">{profile.email}</span>
+          <Link href="/app/profil" className={`${link} ml-auto`}>{profile.display_name || 'Profil'}</Link>
           <form action={logout}><button className={link}>Odhlásit</button></form>
         </div>
       </header>

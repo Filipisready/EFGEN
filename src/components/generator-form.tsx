@@ -4,6 +4,7 @@ import { generateAction } from '@/lib/generator-actions'
 import type { GeneratedWorkout, GeneratorInput } from '@/lib/generator/types'
 import { WorkoutEditor } from '@/components/workout-editor'
 import { ExportBar } from '@/components/export-bar'
+import { SaveBar } from '@/components/save-bar'
 import { Alert, Field, btnCls, btn2Cls, inputCls } from '@/components/ui'
 
 const MUSCLES = ['nohy', 'záda', 'core', 'hrudník', 'ramena', 'paže']
@@ -40,6 +41,8 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
   const [workout, setWorkout] = useState<GeneratedWorkout | null>(null)
   const [genError, setGenError] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
+  const [savedId, setSavedId] = useState<string | null>(null)
+  const [unsaved, setUnsaved] = useState(true)
   const [restored, setRestored] = useState(false)
   const [pending, start] = useTransition()
   const resRef = useRef<HTMLDivElement>(null)
@@ -85,7 +88,7 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
         cardioStrength: ks, groupSize: groupSize || undefined, groupName: groupName || undefined, title: title || undefined,
         params: Object.keys(p).length ? p : undefined,
       })
-      if (r.ok) { setWorkout(r.workout); setGenError(null); setDirty(false) } else { setGenError(r.error); setWorkout(null) }
+      if (r.ok) { setWorkout(r.workout); setGenError(null); setDirty(false); setSavedId(null); setUnsaved(true) } else { setGenError(r.error); setWorkout(null) }
       setTimeout(() => resRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
     })
   }
@@ -179,7 +182,8 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
         {genError && <Alert>{genError}</Alert>}
         {workout && (
           <div className="space-y-3">
-            <WorkoutEditor workout={workout} onChange={(w) => { setWorkout(w); setDirty(true) }} />
+            <WorkoutEditor workout={workout} onChange={(w) => { setWorkout(w); setDirty(true); setUnsaved(true) }} />
+            <SaveBar workout={workout} savedId={savedId} unsaved={unsaved} onSaved={(id) => { setSavedId(id); setUnsaved(false) }} />
             <ExportBar workout={workout} />
             <button type="button" onClick={submit} disabled={pending} className={btn2Cls}>{pending ? 'Generuji…' : 'Přegenerovat se stejným zadáním'}</button>
           </div>
