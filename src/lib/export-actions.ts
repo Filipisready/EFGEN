@@ -10,6 +10,8 @@ import type { GeneratedWorkout } from '@/lib/generator/types'
 export type EmailResult = { ok: true; message: string } | { ok: false; error: string }
 
 const LIMIT = Math.max(1, Number(process.env.EMAIL_DAILY_LIMIT) || 5)
+/** Odesílatel z prostředí. Odstraní okolní uvozovky a mezery (Vercel bere hodnoty doslova). */
+const mailFrom = () => (process.env.MAIL_FROM ?? '').trim().replace(/^["']|["']$/g, '').trim() || 'EFGEN <trenink@efgen.pro>'
 const DAY_MS = 24 * 60 * 60 * 1000
 const fmt = (d: Date) => d.toLocaleString('cs-CZ', { timeZone: 'Europe/Prague', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })
 const slug = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'trenink'
@@ -53,7 +55,7 @@ export async function emailWorkoutAction(raw: unknown): Promise<EmailResult> {
     stage = 'send'
     const { subject, html, text } = buildEmail(w)
     const { error } = await new Resend(process.env.RESEND_API_KEY).emails.send({
-      from: process.env.MAIL_FROM ?? 'EFGEN <trenink@efgen.pro>',
+      from: mailFrom(),
       to: session.profile.email,
       subject, html, text,
       attachments: [{ filename: `efgen-${slug(w.title)}.pdf`, content: pdf }],
