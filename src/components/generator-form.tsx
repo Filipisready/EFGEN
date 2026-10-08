@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { generateAction } from '@/lib/generator-actions'
-import type { GenerateResult, GeneratorInput } from '@/lib/generator/types'
-import { WorkoutView } from '@/components/workout-view'
+import type { GeneratedWorkout, GeneratorInput } from '@/lib/generator/types'
+import { WorkoutEditor } from '@/components/workout-editor'
 import { Alert, Field, btnCls, btn2Cls, inputCls } from '@/components/ui'
 
 const MUSCLES = ['nohy', 'záda', 'core', 'hrudník', 'ramena', 'paže']
@@ -36,7 +36,9 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
   const [groupName, setGroupName] = useState('')
   const [title, setTitle] = useState('')
   const [params, setParams] = useState({ workSec: '', restSec: '', rounds: '', pauseSec: '' })
-  const [result, setResult] = useState<GenerateResult | null>(null)
+  const [workout, setWorkout] = useState<GeneratedWorkout | null>(null)
+  const [genError, setGenError] = useState<string | null>(null)
+  const [dirty, setDirty] = useState(false)
   const [pending, start] = useTransition()
   const resRef = useRef<HTMLDivElement>(null)
 
@@ -66,6 +68,7 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
   }
 
   function submit() {
+    if (dirty && !confirm('Ruční úpravy tréninku se přegenerováním ztratí. Pokračovat?')) return
     try { localStorage.setItem(STORE, JSON.stringify({ eq, environment, level })) } catch { /* ignorujeme */ }
     const p = Object.fromEntries(Object.entries(params).filter(([, v]) => v !== '').map(([k, v]) => [k, Number(v)]))
     start(async () => {
@@ -76,7 +79,7 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
         cardioStrength: ks, groupSize: groupSize || undefined, groupName: groupName || undefined, title: title || undefined,
         params: Object.keys(p).length ? p : undefined,
       })
-      setResult(r)
+      if (r.ok) { setWorkout(r.workout); setGenError(null); setDirty(false) } else { setGenError(r.error); setWorkout(null) }
       setTimeout(() => resRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
     })
   }
@@ -156,14 +159,14 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
           </details>
         )}
 
-        <button disabled={pending} className={`${btnCls} w-full sm:w-auto`}>{pending ? 'Generuji…' : result ? 'Přegenerovat' : 'Vygenerovat trénink'}</button>
+        <button disabled={pending} className={`${btnCls} w-full sm:w-auto`}>{pending ? 'Generuji…' : workout ? 'Přegenerovat' : 'Vygenerovat trénink'}</button>
       </form>
 
       <div ref={resRef} className="scroll-mt-4">
-        {result && !result.ok && <Alert>{result.error}</Alert>}
-        {result?.ok && (
+        {genError && <Alert>{genError}</Alert>}
+        {workout && (
           <div className="space-y-3">
-            <WorkoutView w={result.workout} />
+            <WorkoutEditor workout={workout} onChange={(w) => { setWorkout(w); setDirty(true) }} />
             <button type="button" onClick={submit} disabled={pending} className={btn2Cls}>{pending ? 'Generuji…' : 'Přegenerovat se stejným zadáním'}</button>
           </div>
         )}

@@ -3,7 +3,9 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/auth'
 import { generateWorkout } from '@/lib/generator/generate'
-import type { GenerateResult } from '@/lib/generator/types'
+import type { GenerateResult, WorkoutExercise } from '@/lib/generator/types'
+import { findReplacements, searchLibrary } from '@/lib/generator/suggest'
+import { toWorkoutExercise } from '@/lib/generator/pools'
 import type { Exercise } from '@/lib/constants'
 
 const num = (min: number, max: number) => z.coerce.number().int().min(min).max(max)
@@ -39,4 +41,50 @@ export async function generateAction(raw: unknown): Promise<GenerateResult> {
   const input = parsed.data
   if (input.format === 'CrossFit' && input.segments) input.mainMin = input.segments.reduce((a, x) => a + x.minutes, 0)
   return generateWorkout(data, input)
+}
+
+// --- Úpravy hotového tréninku (výměna a přidání cviku) ---
+
+const ctxSchema = z.object({
+  level: z.enum(['začátečník', 'pokročilý', 'expert']),
+  environment: z.enum(['uvnitř', 'venku']),
+  equipment: z.array(z.string().max(60)).max(40),
+  format: z.enum(['Tabata', 'TRX', 'CrossFit']),
+  muscles: z.array(z.string().max(30)).max(10),
+  cardioStrength: num(1, 5),
+})
+const scopeSchema = z.object({
+  ctx: ctxSchema,
+  key: z.enum(['rozcvička', 'hlavní', 'zklidnění']),
+  usedIds: z.array(z.string().max(60)).max(100),
+  blockIds: z.array(z.string().max(60)).max(60),
+})
+
+async function loadLib(): Promise<Exercise[] | null> {
+  const supabase = await createClient()
+  const { data, error } = await supabase.from('exercises').select('*').eq('active', true).limit(2000).returns<Exercise[]>()
+  return error || !data ? null : data
+}
+
+export type ExerciseOptions = { ok: true; items: WorkoutExercise[] } | { ok: false; error: string }
+
+export async function swapOptionsAction(raw: unknown, targetId: string): Promise<ExerciseOptions> {
+  await requireUser()
+  const p = scopeSchema.safeParse(raw)
+  if (!p.success || typeof targetId !== 'string') return { ok: false, error: 'Neplatný požadavek.' }
+  const lib = await loadLib()
+  if (!lib) return { ok: false, error: 'Knihovnu se nepodařilo načíst.' }
+  const withValue = p.data.ctx.format === 'CrossFit' && p.data.key === 'hlavní'
+  const items = findReplacements(lib, p.data, targetId).map((e) => toWorkoutExercise(e, withValue))
+  return { ok: true, items }
+}
+
+export async function searchExercisesAction(raw: unknown, query: string): Promise<ExerciseOptions> {
+  await requireUser()
+  const p = scopeSchema.safeParse(raw)
+  if (!p.success || typeof query !== 'string' || query.length > 80) return { ok: false, error: 'Neplatný požadavek.' }
+  const lib = await loadLib()
+  if (!lib) return { ok: false, error: 'Knihovnu se nepodařilo načíst.' }
+  const withValue = p.data.ctx.format === 'CrossFit' && p.data.key === 'hlavní'
+  return { ok: true, items: searchLibrary(lib, p.data, query).map((e) => toWorkoutExercise(e, withValue)) }
 }

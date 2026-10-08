@@ -13,6 +13,16 @@ export type TemplateParams = {
   pauseSec?: number // Tabata: pauza mezi cviky, TRX: pauza mezi koly
 }
 
+/** Zadání, ze kterého trénink vznikl. Potřebné pro výměnu a přidání cviků po vygenerování. */
+export type WorkoutContext = {
+  level: Level
+  environment: 'uvnitř' | 'venku'
+  equipment: string[]
+  format: Format
+  muscles: string[]
+  cardioStrength: number
+}
+
 export type GeneratorInput = {
   level: Level
   muscles: string[] // prázdné = všechny
@@ -45,8 +55,10 @@ export type WorkoutExercise = {
   equipment: string[]
   /** Čas / opakování připravené k zobrazení, např. „12×“, „30 s“. */
   valueText?: string
-  /** Pro EMOM: minuty, ve kterých se cvik dělá. */
+  /** Pro EMOM: minuty, ve kterých se cvik dělá (počítá aplikace). */
   note?: string
+  /** Poznámka trenéra ke cviku. */
+  userNote?: string
 }
 
 export type WorkoutBlock = {
@@ -54,6 +66,8 @@ export type WorkoutBlock = {
   minutes: number
   /** Popisek části hlavního tréninku, např. „AMRAP 20 min“. */
   label?: string
+  /** Typ části CrossFitu (AMRAP, EMOM, For Time). */
+  type?: Subtype
   /** Časová struktura bloku čitelná pro člověka. */
   structure: string
   exercises: WorkoutExercise[]
@@ -69,6 +83,9 @@ export type GeneratedWorkout = {
   totalMinutes: number
   blocks: WorkoutBlock[]
   params: Required<TemplateParams>
+  context: WorkoutContext
+  /** Poznámka trenéra k celému tréninku. */
+  note?: string
   warnings: string[]
 }
 

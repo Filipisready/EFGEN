@@ -1,32 +1,11 @@
 import type { Exercise } from '@/lib/constants'
 import { mulberry32, weightedPick, type Rng } from './rng'
 import { mainCount, mainStructure, resolveParams, totalMainSeconds, fmtSec, cviku } from './templates'
-import type { BlockKey, GenerateResult, GeneratorInput, Level, WorkoutBlock, WorkoutExercise } from './types'
-
-const RANK: Record<Level, number> = { začátečník: 0, pokročilý: 1, expert: 2 }
-const LEVELS: Level[] = ['začátečník', 'pokročilý', 'expert']
-
-/** Úroveň skupiny a o stupeň nižší (PRD 6.1). Začátečník dostane jen začátečnické cviky. */
-const allowedLevels = (l: Level) => LEVELS.filter((x) => RANK[x] <= RANK[l] && RANK[x] >= RANK[l] - 1)
+import type { BlockKey, GenerateResult, GeneratorInput, WorkoutBlock } from './types'
+import { buildPools, context, toWorkoutExercise, type Step } from './pools'
+import { recompute } from './recompute'
 
 const DAY = (d = new Date()) => d.toISOString().slice(0, 10)
-
-type Step = { label: string; count: number }
-
-function valueText(e: Exercise): string | undefined {
-  if (!e.default_value) return undefined
-  if (e.unit === 'opakování') return `${e.default_value}×`
-  if (e.unit === 'sekundy') return `${e.default_value} s`
-  return `${e.default_value} m`
-}
-
-function toWorkoutExercise(e: Exercise, withValue: boolean): WorkoutExercise {
-  return {
-    id: e.id, name: e.name, altName: e.alt_name ?? undefined, description: e.description, videoUrl: e.video_url,
-    muscle: e.muscle, level: e.level, equipment: e.equipment,
-    valueText: withValue ? valueText(e) : undefined,
-  }
-}
 
 /** Měkká pravidla pořadí (PRD 6.5, pravidla 7 až 11). Vrací násobek váhy kandidáta. */
 function sequenceFactor(prev: Exercise | undefined, cand: Exercise, tabata: boolean): number {
@@ -83,23 +62,12 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
   const warnings: string[] = []
   const params = resolveParams(input.format, input.params)
   const avail = new Set(input.equipment)
-  const levels = allowedLevels(input.level)
 
   if (input.format !== 'CrossFit' && input.mainMin < 1) return { ok: false, error: 'Zadejte délku hlavní části (alespoň 1 minutu).' }
   if (input.format === 'TRX' && !avail.has('TRX')) return { ok: false, error: 'Pro formát TRX zaškrtněte mezi pomůckami TRX.' }
 
-  // Společné tvrdé filtry: aktivní, prostředí, pomůcky, úroveň.
-  const diag: Step[] = []
-  let base = lib.filter((e) => e.active)
-  diag.push({ label: 'aktivních cviků', count: base.length })
-  base = base.filter((e) => e.environment === 'obojí' || e.environment === input.environment)
-  diag.push({ label: `pro prostředí „${input.environment}“`, count: base.length })
-  base = base.filter((e) => e.equipment.every((x) => avail.has(x)))
-  diag.push({ label: 's dostupnými pomůckami', count: base.length })
-  const byLevel = base.filter((e) => levels.includes(e.level as Level))
-  diag.push({ label: `pro úroveň „${input.level}“`, count: byLevel.length })
-  // Rozcvička a zklidnění nejsou vázány na úroveň skupiny shora (PRD 6.5, pravidla 5 a 6): stačí, že cvik není těžší než skupina.
-  const lowerOrEqual = base.filter((e) => RANK[e.level as Level] <= RANK[input.level])
+  const pools = buildPools(lib, input)
+  const diag: Step[] = pools.diag
 
   // Hlavní část: u CrossFitu může mít několik částí (např. AMRAP 20 min + EMOM 10 min).
   const segments = input.format === 'CrossFit'
@@ -107,13 +75,8 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
     : [{ type: undefined, minutes: input.mainMin }]
   if (segments.some((sg) => !(sg.minutes >= 1))) return { ok: false, error: 'Zadejte délku hlavní části (alespoň 1 minutu).' }
 
-  let mainPool = byLevel.filter((e) => e.blocks.includes('hlavní') && e.formats.includes(input.format))
-  diag.push({ label: `s rolí hlavní části a formátem ${input.format}`, count: mainPool.length })
+  const mainPool = pools.main
   const trx = input.format === 'TRX'
-  if (trx) {
-    // Pravidlo 1: min. 80 % cviků s pomůckou TRX, zbytek vlastní váha. Jiné pomůcky se nepoužijí.
-    mainPool = mainPool.filter((e) => e.equipment.includes('TRX') || e.equipment.length === 0)
-  }
   if (!mainPool.length) return { ok: false, error: explain(input, diag) }
 
   const mainBlocks: WorkoutBlock[] = []
@@ -132,7 +95,7 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
     }
     const sec = totalMainSeconds(input.format, sg.type, sg.minutes, ex.length || 1, params)
     const blk: WorkoutBlock = {
-      key: 'hlavní', minutes: sg.minutes, label,
+      key: 'hlavní', minutes: sg.minutes, label, type: sg.type,
       structure: mainStructure(input.format, sg.type, sg.minutes, ex.length, params),
       exercises: ex.map((e, i) => {
         const w = toWorkoutExercise(e, input.format === 'CrossFit')
@@ -157,8 +120,7 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
   const mainMuscles = [...new Set(mainEx.map((e) => e.muscle).filter((m) => m !== 'celé tělo'))]
 
   if (input.warmupMin > 0) {
-    const pool = lowerOrEqual.filter((e) => e.blocks.includes('rozcvička') && e.level !== 'expert' && e.cardio_strength <= 3 &&
-      (e.movement !== 'skok' || e.level === 'začátečník') && !mainEx.includes(e))
+    const pool = pools.warm.filter((e) => !mainEx.includes(e))
     const k = input.warmupMin
     const sel = pickSequence(pool, k, rng, { muscles: input.muscles.length ? input.muscles : mainMuscles })
     if (sel.length < k) warnings.push(`Rozcvička: vhodných cviků je jen ${sel.length} z ${k}.`)
@@ -168,7 +130,7 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
   blocks.push(...mainBlocks)
   if (input.cooldownMin > 0) {
     const usedWarm = new Set(blocks.flatMap((b) => b.exercises.map((x) => x.id)))
-    const pool = lowerOrEqual.filter((e) => e.blocks.includes('zklidnění') && e.cardio_strength === 2 && e.level !== 'expert' && e.movement !== 'skok' && !mainEx.includes(e) && !usedWarm.has(e.id))
+    const pool = pools.cool.filter((e) => !mainEx.includes(e) && !usedWarm.has(e.id))
     const k = input.cooldownMin
     const sel = pickSequence(pool, k, rng, { muscles: mainMuscles })
     if (sel.length < k) warnings.push(`Zklidnění: vhodných cviků je jen ${sel.length} z ${k}.`)
@@ -179,12 +141,12 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
   const label = input.format === 'CrossFit' ? `CrossFit ${[...new Set(segments.map((x) => x.type))].join(' + ')}` : input.format
   return {
     ok: true,
-    workout: {
+    workout: recompute({
       title: input.title?.trim() || `${label} ${new Date().toLocaleDateString('cs-CZ')}`,
       date: DAY(), groupName: input.groupName?.trim() || undefined, groupSize: input.groupSize,
       format: input.format, subtype: input.format === 'CrossFit' && segments.length === 1 ? segments[0].type : undefined,
-      totalMinutes: total, blocks, params, warnings,
-    },
+      totalMinutes: total, blocks, params, warnings, context: context(input),
+    }),
   }
 }
 

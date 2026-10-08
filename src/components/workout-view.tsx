@@ -38,6 +38,7 @@ export function WorkoutView({ w }: { w: GeneratedWorkout }) {
                     {e.note && <span className="ml-2 text-sm font-normal text-neutral-500">({e.note})</span>}
                   </p>
                   <p className="text-neutral-700 dark:text-neutral-300">{e.description}</p>
+                  {e.userNote && <p className="text-sm italic">Poznámka: {e.userNote}</p>}
                   {e.videoUrl && <a href={e.videoUrl} target="_blank" rel="noopener noreferrer" className="text-sm underline">Video</a>}
                 </div>
               </li>
@@ -46,6 +47,7 @@ export function WorkoutView({ w }: { w: GeneratedWorkout }) {
           </ol>
         </section>
       ))}
+      {w.note && <p className="border-t border-neutral-200 pt-3 text-sm dark:border-neutral-800"><b>Poznámka:</b> {w.note}</p>}
     </article>
   )
 }
