@@ -47,8 +47,10 @@ export async function emailWorkoutAction(raw: unknown): Promise<EmailResult> {
     return { ok: false, error: limitMsg(after.data) }
   }
 
+  let stage: 'pdf' | 'send' = 'pdf'
   try {
     const pdf = await renderWorkoutPdf(w)
+    stage = 'send'
     const { subject, html, text } = buildEmail(w)
     const { error } = await new Resend(process.env.RESEND_API_KEY).emails.send({
       from: process.env.MAIL_FROM ?? 'EFGEN <trenink@efgen.pro>',
@@ -56,10 +58,17 @@ export async function emailWorkoutAction(raw: unknown): Promise<EmailResult> {
       subject, html, text,
       attachments: [{ filename: `efgen-${slug(w.title)}.pdf`, content: pdf }],
     })
-    if (error) throw new Error(error.message)
-  } catch {
+    if (error) throw new Error(`${error.name ?? 'resend'}: ${error.message}`)
+  } catch (e) {
+    console.error(`[email] selhalo (${stage}):`, e)
     await db.from('email_log').delete().eq('id', ins.data.id) // neúspěšné odeslání se do limitu nepočítá
-    return { ok: false, error: 'E-mail se nepodařilo odeslat. Zkuste to prosím znovu.' }
+    const detail = e instanceof Error ? e.message.slice(0, 200) : 'neznámá chyba'
+    return {
+      ok: false,
+      error: stage === 'pdf'
+        ? `Nepodařilo se vytvořit PDF pro přílohu (${detail}).`
+        : `E-mail se nepodařilo odeslat (${detail}).`,
+    }
   }
   const left = Math.max(0, LIMIT - (after.data?.length ?? LIMIT))
   return { ok: true, message: `Odesláno na ${session.profile.email}. Dnes můžete poslat ještě ${left} e-mailů.` }
