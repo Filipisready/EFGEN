@@ -6,7 +6,7 @@ export function AuthLayout({ active, children }: { active: 'login' | 'register';
   const tab = (on: boolean) =>
     `flex min-h-11 flex-1 items-center justify-center rounded-xl px-3 text-base transition ${on ? 'bg-accent font-semibold text-accent-ink shadow-sm' : 'font-medium text-muted hover:text-ink'}`
   return (
-    <main className="mx-auto w-full max-w-md space-y-5 px-4 pb-10 pt-2 sm:pt-8">
+    <main id="obsah" className="mx-auto w-full max-w-md space-y-5 px-4 pb-10 pt-2 sm:pt-8">
       <h1 className="text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">Trénink na míru za pár sekund.</h1>
 
       <div className="space-y-5 rounded-3xl border border-line bg-surface p-5 shadow-sm sm:p-6">

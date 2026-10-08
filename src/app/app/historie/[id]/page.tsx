@@ -25,12 +25,12 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         <Link href="/app/historie" className="text-sm underline">← Zpět na historii</Link>
         <div className="flex flex-wrap items-center gap-3">
           <form action={duplicateWorkoutAction.bind(null, id)}><button className={btn2Cls}>Duplikovat a upravit</button></form>
-          <ConfirmButton action={deleteWorkoutAction.bind(null, id)} message="Opravdu smazat tento trénink? Nelze to vrátit." className="text-sm text-red-600 underline">Smazat</ConfirmButton>
+          <ConfirmButton action={deleteWorkoutAction.bind(null, id)} message="Opravdu smazat tento trénink? Nelze to vrátit." className="text-sm text-danger underline">Smazat</ConfirmButton>
         </div>
       </div>
       {parsed.success
         ? <SavedWorkout id={id} initial={parsed.data as GeneratedWorkout} />
-        : <p className="text-red-600">Tento trénink se nepodařilo zobrazit (poškozená data).</p>}
+        : <p className="text-danger">Tento trénink se nepodařilo zobrazit (poškozená data).</p>}
     </div>
   )
 }

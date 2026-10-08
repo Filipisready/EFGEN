@@ -20,7 +20,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">{exercise.name}</h1>
-        <ConfirmButton action={deleteExercise.bind(null, id)} message={`Opravdu smazat cvik „${exercise.name}“? Uložené tréninky zůstanou beze změny.`} className="text-sm text-red-600 underline">Smazat cvik</ConfirmButton>
+        <ConfirmButton action={deleteExercise.bind(null, id)} message={`Opravdu smazat cvik „${exercise.name}“? Uložené tréninky zůstanou beze změny.`} className="text-sm text-danger underline">Smazat cvik</ConfirmButton>
       </div>
       <ExerciseForm exercise={exercise} equipment={(eq ?? []).map((e) => e.name)} />
     </div>

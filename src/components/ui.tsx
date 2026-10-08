@@ -35,7 +35,7 @@ export function Panel({ children, className = '' }: { children: ReactNode; class
 /** Vystředěná karta pro přihlášení a registraci. */
 export function Card({ children }: { children: ReactNode }) {
   return (
-    <main className="mx-auto w-full max-w-md px-4 pb-10 pt-4 sm:pt-10">
+    <main id="obsah" className="mx-auto w-full max-w-md px-4 pb-10 pt-4 sm:pt-10">
       <div className="space-y-5 rounded-3xl border border-line bg-surface p-6 shadow-sm sm:p-8">{children}</div>
     </main>
   )

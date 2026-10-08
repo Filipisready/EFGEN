@@ -27,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="cs"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col"><SiteHeader /><div className="flex-1">{children}</div><Footer /></body>
+      <body className="flex min-h-full flex-col"><a href="#obsah" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:font-semibold focus:text-accent-ink">Přejít na obsah</a><SiteHeader /><div className="flex-1">{children}</div><Footer /></body>
     </html>
   );
 }

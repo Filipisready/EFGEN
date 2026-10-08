@@ -34,7 +34,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
               <p className="text-sm text-muted">{u.display_name ? `${u.display_name} · ` : ''}registrace {new Date(u.created_at).toLocaleDateString('cs-CZ')} · tréninků: {counts.get(u.id) ?? 0}</p>
             </div>
             {u.id !== profile.id && (
-              <ConfirmButton action={deleteUserAction.bind(null, u.id)} message={`Opravdu smazat uživatele ${u.email} včetně všech jeho tréninků? Nelze to vrátit.`} className="text-sm text-red-600 underline">Smazat</ConfirmButton>
+              <ConfirmButton action={deleteUserAction.bind(null, u.id)} message={`Opravdu smazat uživatele ${u.email} včetně všech jeho tréninků? Nelze to vrátit.`} className="text-sm text-danger underline">Smazat</ConfirmButton>
             )}
           </li>
         ))}

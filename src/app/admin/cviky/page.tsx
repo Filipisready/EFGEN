@@ -45,7 +45,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
         </select>
         <button className={btn2Cls}>Filtrovat</button>
       </form>
-      {error && <p className="text-red-600">Načtení se nepovedlo.</p>}
+      {error && <p className="text-danger">Načtení se nepovedlo.</p>}
       <ul className="divide-y divide-line rounded-lg border border-line">
         {rows.map((e) => (
           <li key={e.id} className="flex flex-wrap items-center gap-3 p-3">

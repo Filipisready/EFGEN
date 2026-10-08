@@ -29,7 +29,7 @@ export function Shell({ profile, children }: { profile: Profile; children: React
           </div>
         </div>
       </header>
-      <div className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 md:pb-10">{children}</div>
+      <main id="obsah" className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 md:pb-10">{children}</main>
       <BottomNav items={isAdmin ? [...main, { href: '/admin/cviky', label: 'Správa', icon: 'dumbbell' }] : main} />
     </>
   )

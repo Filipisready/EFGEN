@@ -32,7 +32,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
         <input name="q" defaultValue={q ?? ''} placeholder="Hledat podle názvu…" aria-label="Hledat podle názvu" className={inputCls} />
         <button className={btn2Cls}>Hledat</button>
       </form>
-      {error && <p className="text-red-600">Historii se nepodařilo načíst.</p>}
+      {error && <p className="text-danger">Historii se nepodařilo načíst.</p>}
       <ul className="divide-y divide-line rounded-lg border border-line">
         {rows.map((w) => (
           <li key={w.id}>
@@ -44,7 +44,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
             </Link>
           </li>
         ))}
-        {!rows.length && <li className="p-6 text-center text-muted">{q ? 'Nic nenalezeno.' : 'Zatím nemáte žádný uložený trénink.'}</li>}
+        {!rows.length && (
+          <li className="space-y-3 p-8 text-center">
+            <p className="text-muted">{q ? 'Nic nenalezeno.' : 'Zatím nemáte žádný uložený trénink.'}</p>
+            {!q && <Link href="/app/novy" className={btnCls}>Sestavit první trénink</Link>}
+          </li>
+        )}
       </ul>
       {pages > 1 && (
         <nav className="flex items-center justify-between text-sm" aria-label="Stránkování">

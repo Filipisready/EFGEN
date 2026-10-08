@@ -4,7 +4,7 @@ const H2 = ({ children }: { children: React.ReactNode }) => <h2 className="pt-4 
 
 export default function Page() {
   return (
-    <main className="mx-auto max-w-2xl space-y-3 px-4 py-10 leading-relaxed">
+    <main id="obsah" className="mx-auto max-w-2xl space-y-3 px-4 py-10 leading-relaxed">
       <h1 className="text-3xl font-bold">Zásady ochrany soukromí</h1>
       <p className="text-sm text-muted">Platné od 8. 10. 2026</p>
       <p>

@@ -11,7 +11,7 @@ const FEATURES = [
 export default async function Home() {
   const s = await getSession()
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 pb-8 pt-6 sm:pt-14">
+    <main id="obsah" className="mx-auto w-full max-w-5xl px-4 pb-8 pt-6 sm:pt-14">
       <section className="grid items-center gap-10 md:grid-cols-[1.1fr_0.9fr]">
         <div className="space-y-6">
           <p className="inline-flex rounded-full bg-accent-soft px-3 py-1 text-sm font-semibold">Pro trenéry skupinových lekcí</p>

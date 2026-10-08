@@ -42,7 +42,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
           <li key={e.name} className="space-y-2 p-3">
             <div className="flex items-center gap-3">
               <span className="min-w-0 flex-1 font-medium">{e.name}{e.cf_label && <span className="ml-2 text-sm font-normal text-muted">CrossFit: {e.cf_label}</span>}</span>
-              <ConfirmButton action={deleteEquipment.bind(null, e.name)} message={`Smazat pomůcku „${e.name}“?`} className="text-sm text-red-600 underline">Smazat</ConfirmButton>
+              <ConfirmButton action={deleteEquipment.bind(null, e.name)} message={`Smazat pomůcku „${e.name}“?`} className="text-sm text-danger underline">Smazat</ConfirmButton>
             </div>
             <details>
               <summary className="cursor-pointer text-sm underline">Upravit</summary>
