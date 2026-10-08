@@ -1,4 +1,5 @@
 import type { GeneratedWorkout } from '@/lib/generator/types'
+import { altLabel } from '@/lib/generator/display'
 
 const NAMES = { rozcvička: 'Rozcvička', hlavní: 'Hlavní část', zklidnění: 'Zklidnění' } as const
 
@@ -19,7 +20,7 @@ export function WorkoutImageCard({ w }: { w: GeneratedWorkout }) {
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 19, fontWeight: 700 }}>
                   {e.name}
-                  {w.format === 'CrossFit' && e.altName && e.altName.toLowerCase() !== e.name.toLowerCase() && <span style={{ fontWeight: 400, color: '#666' }}> ({e.altName})</span>}
+                  {altLabel(w.format, e.name, e.altName) && <span style={{ fontWeight: 400, color: '#666' }}> ({altLabel(w.format, e.name, e.altName)})</span>}
                   {e.valueText && <span style={{ marginLeft: 8, background: '#eee', padding: '1px 8px', borderRadius: 4, fontSize: 17 }}>{e.valueText}</span>}
                   {e.note && <span style={{ fontWeight: 400, color: '#666', fontSize: 15 }}> ({e.note})</span>}
                 </div>

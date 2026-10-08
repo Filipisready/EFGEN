@@ -1,4 +1,5 @@
 import type { GeneratedWorkout } from '@/lib/generator/types'
+import { altLabel } from '@/lib/generator/display'
 
 const NAMES = { rozcvička: 'Rozcvička', hlavní: 'Hlavní část', zklidnění: 'Zklidnění' } as const
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -7,8 +8,10 @@ function meta(w: GeneratedWorkout) {
   return [new Date(w.date).toLocaleDateString('cs-CZ'), `${w.format}${w.subtype ? ' ' + w.subtype : ''}`, `celkem ${w.totalMinutes} min`, w.groupName, w.groupSize ? `${w.groupSize} osob` : null]
     .filter(Boolean).join(' · ')
 }
-const altOf = (w: GeneratedWorkout, e: GeneratedWorkout['blocks'][number]['exercises'][number]) =>
-  w.format === 'CrossFit' && e.altName && e.altName.toLowerCase() !== e.name.toLowerCase() ? ` (${e.altName})` : ''
+const altOf = (w: GeneratedWorkout, e: GeneratedWorkout['blocks'][number]['exercises'][number]) => {
+  const a = altLabel(w.format, e.name, e.altName)
+  return a ? ` (${a})` : ''
+}
 
 export function buildEmail(w: GeneratedWorkout) {
   const subject = `EFGEN: ${w.title}`

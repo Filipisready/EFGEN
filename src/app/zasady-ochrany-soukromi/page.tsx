@@ -6,7 +6,7 @@ export default function Page() {
   return (
     <main className="mx-auto max-w-2xl space-y-3 px-4 py-10 leading-relaxed">
       <h1 className="text-3xl font-bold">Zásady ochrany soukromí</h1>
-      <p className="text-sm text-neutral-500">Platné od 8. 10. 2026</p>
+      <p className="text-sm text-muted">Platné od 8. 10. 2026</p>
       <p>
         EFGEN (efgen.pro) je osobní nekomerční webová aplikace pro trenéry skupinových lekcí. Tyto zásady vysvětlují, jaké osobní údaje o vás
         zpracováváme, proč a jaká máte práva.

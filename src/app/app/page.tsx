@@ -12,14 +12,14 @@ export default async function Page() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Vítejte{profile.display_name ? `, ${profile.display_name}` : ''}</h1>
-      <p className="text-neutral-600 dark:text-neutral-400">Sestavte trénink na míru své skupině. </p>
+      <p className="text-muted">Sestavte trénink na míru své skupině. </p>
       <Link href="/app/novy" className={btnCls}>Nový trénink</Link>
       {!!recent?.length && (
         <section className="space-y-2 pt-4">
           <h2 className="text-lg font-semibold">Poslední tréninky</h2>
-          <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+          <ul className="divide-y divide-line rounded-lg border border-line">
             {recent.map((w) => (
-              <li key={w.id}><Link href={`/app/historie/${w.id}`} className="block min-h-12 p-3 hover:bg-neutral-50 dark:hover:bg-neutral-900"><span className="font-medium">{w.title}</span><span className="block text-sm text-neutral-500">{new Date(w.workout_date).toLocaleDateString('cs-CZ')} · {w.format}</span></Link></li>
+              <li key={w.id}><Link href={`/app/historie/${w.id}`} className="block min-h-12 p-3 hover:bg-surface-2"><span className="font-medium">{w.title}</span><span className="block text-sm text-muted">{new Date(w.workout_date).toLocaleDateString('cs-CZ')} · {w.format}</span></Link></li>
             ))}
           </ul>
           <Link href="/app/historie" className="text-sm underline">Celá historie</Link>

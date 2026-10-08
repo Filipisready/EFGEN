@@ -22,7 +22,7 @@ export function ExerciseForm({ exercise, equipment }: { exercise?: Exercise; equ
   const checkGroup = (name: 'equipment' | 'formats' | 'blocks', opts: readonly string[]) => (
     <div className="flex flex-wrap gap-2">
       {opts.map((o) => (
-        <label key={o} className="flex min-h-11 items-center gap-2 rounded-lg border border-neutral-300 px-3 dark:border-neutral-700">
+        <label key={o} className="flex min-h-11 items-center gap-2 rounded-lg border border-line-strong px-3">
           <input type="checkbox" name={name} value={o} defaultChecked={list(name).includes(o)} className="size-5" />
           <span className="text-sm">{o}</span>
         </label>
@@ -52,7 +52,7 @@ export function ExerciseForm({ exercise, equipment }: { exercise?: Exercise; equ
       <div className="space-y-1.5"><span className="text-sm font-medium">Bloky *</span>{checkGroup('blocks', BLOCKS)}</div>
       <div className="space-y-1.5">
         <span className="text-sm font-medium">Pomůcky</span>
-        <p className="text-sm text-neutral-500">Nic nezaškrtávejte, pokud cvik nepotřebuje vybavení (vlastní váha).</p>
+        <p className="text-sm text-muted">Nic nezaškrtávejte, pokud cvik nepotřebuje vybavení (vlastní váha).</p>
         {checkGroup('equipment', equipment)}
       </div>
       <Field label="Kardio ↔ síla *">

@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { Document, Font, Page, StyleSheet, Text, View, renderToBuffer } from '@react-pdf/renderer'
 import type { GeneratedWorkout } from '@/lib/generator/types'
+import { altLabel } from '@/lib/generator/display'
 
 const dir = path.join(process.cwd(), 'assets', 'fonts')
 let registered = false
@@ -62,7 +63,7 @@ export function WorkoutPdf({ w }: { w: GeneratedWorkout }) {
               <View style={s.body}>
                 <Text style={s.name}>
                   {e.name}
-                  {w.format === 'CrossFit' && e.altName && e.altName.toLowerCase() !== e.name.toLowerCase() ? <Text style={s.alt}> ({e.altName})</Text> : null}
+                  {altLabel(w.format, e.name, e.altName) ? <Text style={s.alt}> ({altLabel(w.format, e.name, e.altName)})</Text> : null}
                   {e.valueText ? <Text style={s.badge}>{'  '}{e.valueText}{'  '}</Text> : null}
                   {e.note ? <Text style={s.alt}> ({e.note})</Text> : null}
                 </Text>

@@ -31,7 +31,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">Cviky <span className="text-base font-normal text-neutral-500">({rows.length})</span></h1>
+        <h1 className="text-2xl font-bold">Cviky <span className="text-base font-normal text-muted">({rows.length})</span></h1>
         <Link href="/admin/cviky/novy" className={btnCls}>Nový cvik</Link>
       </div>
       <form className="grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
@@ -46,13 +46,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
         <button className={btn2Cls}>Filtrovat</button>
       </form>
       {error && <p className="text-red-600">Načtení se nepovedlo.</p>}
-      <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+      <ul className="divide-y divide-line rounded-lg border border-line">
         {rows.map((e) => (
           <li key={e.id} className="flex flex-wrap items-center gap-3 p-3">
             <div className="min-w-0 flex-1">
               <Link href={`/admin/cviky/${e.id}`} className="font-medium underline-offset-2 hover:underline">{e.name}</Link>
-              {!e.active && <span className="ml-2 rounded bg-neutral-200 px-1.5 py-0.5 text-xs dark:bg-neutral-800">neaktivní</span>}
-              <p className="text-sm text-neutral-500">
+              {!e.active && <span className="ml-2 rounded bg-surface-2 px-1.5 py-0.5 text-xs">neaktivní</span>}
+              <p className="text-sm text-muted">
                 {e.muscle} · {e.level} · {e.formats.join(', ')} · {e.blocks.join(', ')} · {e.equipment.join(', ') || 'vlastní váha'}
               </p>
             </div>
@@ -61,7 +61,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
             </form>
           </li>
         ))}
-        {!rows.length && <li className="p-6 text-center text-neutral-500">Nic nenalezeno.</li>}
+        {!rows.length && <li className="p-6 text-center text-muted">Nic nenalezeno.</li>}
       </ul>
     </div>
   )

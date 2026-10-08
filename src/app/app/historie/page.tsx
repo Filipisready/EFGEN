@@ -25,7 +25,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">Historie tréninků <span className="text-base font-normal text-neutral-500">({count ?? 0})</span></h1>
+        <h1 className="text-2xl font-bold">Historie tréninků <span className="text-base font-normal text-muted">({count ?? 0})</span></h1>
         <Link href="/app/novy" className={btnCls}>Nový trénink</Link>
       </div>
       <form className="flex gap-2">
@@ -33,23 +33,23 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
         <button className={btn2Cls}>Hledat</button>
       </form>
       {error && <p className="text-red-600">Historii se nepodařilo načíst.</p>}
-      <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+      <ul className="divide-y divide-line rounded-lg border border-line">
         {rows.map((w) => (
           <li key={w.id}>
-            <Link href={`/app/historie/${w.id}`} className="block min-h-14 p-3 hover:bg-neutral-50 dark:hover:bg-neutral-900">
+            <Link href={`/app/historie/${w.id}`} className="block min-h-14 p-3 hover:bg-surface-2">
               <span className="font-medium">{w.title}</span>
-              <span className="block text-sm text-neutral-500">
+              <span className="block text-sm text-muted">
                 {new Date(w.workout_date).toLocaleDateString('cs-CZ')} · {w.format}{w.subtype ? ` ${w.subtype}` : ''}{w.total ? ` · ${w.total} min` : ''}{w.group_name ? ` · ${w.group_name}` : ''}
               </span>
             </Link>
           </li>
         ))}
-        {!rows.length && <li className="p-6 text-center text-neutral-500">{q ? 'Nic nenalezeno.' : 'Zatím nemáte žádný uložený trénink.'}</li>}
+        {!rows.length && <li className="p-6 text-center text-muted">{q ? 'Nic nenalezeno.' : 'Zatím nemáte žádný uložený trénink.'}</li>}
       </ul>
       {pages > 1 && (
         <nav className="flex items-center justify-between text-sm" aria-label="Stránkování">
           {page > 1 ? <Link href={href(page - 1)} className="underline">← Novější</Link> : <span />}
-          <span className="text-neutral-500">Strana {page} z {pages}</span>
+          <span className="text-muted">Strana {page} z {pages}</span>
           {page < pages ? <Link href={href(page + 1)} className="underline">Starší →</Link> : <span />}
         </nav>
       )}

@@ -25,9 +25,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
   return (
     <div className="max-w-2xl space-y-5">
       <h1 className="text-2xl font-bold">Pomůcky</h1>
-      <p className="text-sm text-neutral-500">Číselník pomůcek pro cviky. „Vlastní váha“ se neuvádí, znamená žádnou pomůcku. Podložka není pomůcka. Pomůcka se nabízí jen u zaškrtnutých formátů, v CrossFitu se zobrazuje pod anglickým názvem (pokud je zadaný).</p>
+      <p className="text-sm text-muted">Číselník pomůcek pro cviky. „Vlastní váha“ se neuvádí, znamená žádnou pomůcku. Podložka není pomůcka. Pomůcka se nabízí jen u zaškrtnutých formátů, v CrossFitu se zobrazuje pod anglickým názvem (pokud je zadaný).</p>
       {chyba && <Alert>{chyba}</Alert>}
-      <form action={addEquipment} className="space-y-3 rounded-lg border border-neutral-200 p-3 dark:border-neutral-800">
+      <form action={addEquipment} className="space-y-3 rounded-lg border border-line p-3">
         <h2 className="font-semibold">Nová pomůcka</h2>
         <div className="grid gap-3 sm:grid-cols-3">
           <Field label="Název"><input name="name" required className={inputCls} /></Field>
@@ -37,11 +37,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
         <Formats checked={[...FORMATS]} />
         <button className={btnCls}>Přidat</button>
       </form>
-      <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+      <ul className="divide-y divide-line rounded-lg border border-line">
         {(data ?? []).map((e) => (
           <li key={e.name} className="space-y-2 p-3">
             <div className="flex items-center gap-3">
-              <span className="min-w-0 flex-1 font-medium">{e.name}{e.cf_label && <span className="ml-2 text-sm font-normal text-neutral-500">CrossFit: {e.cf_label}</span>}</span>
+              <span className="min-w-0 flex-1 font-medium">{e.name}{e.cf_label && <span className="ml-2 text-sm font-normal text-muted">CrossFit: {e.cf_label}</span>}</span>
               <ConfirmButton action={deleteEquipment.bind(null, e.name)} message={`Smazat pomůcku „${e.name}“?`} className="text-sm text-red-600 underline">Smazat</ConfirmButton>
             </div>
             <details>

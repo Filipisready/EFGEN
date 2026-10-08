@@ -7,7 +7,7 @@ export default function Page() {
   return (
     <Card>
       <h1 className="text-2xl font-bold">Zapomenuté heslo</h1>
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">Zadejte e-mail, se kterým jste se registrovali. Pošleme vám odkaz pro nastavení nového hesla.</p>
+      <p className="text-sm text-muted">Zadejte e-mail, se kterým jste se registrovali. Pošleme vám odkaz pro nastavení nového hesla.</p>
       <ForgotForm />
     </Card>
   )
