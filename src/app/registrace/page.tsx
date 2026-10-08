@@ -1,15 +1,13 @@
-import Link from 'next/link'
-import { Card } from '@/components/ui'
+import { AuthLayout } from '@/components/auth-layout'
 import { RegisterForm } from '@/components/auth-forms'
 
 export const metadata = { title: 'Registrace · EFGEN' }
 
 export default function Page() {
   return (
-    <Card>
-      <h1 className="text-2xl font-bold">Registrace trenéra</h1>
+    <AuthLayout active="register">
+      <p className="text-sm text-muted">Nový trenér? Účet je zdarma. Na zadaný e-mail pošleme odkaz pro ověření adresy.</p>
       <RegisterForm />
-      <p className="text-center text-sm">Už máte účet? <Link href="/prihlaseni" className="underline">Přihlaste se</Link></p>
-    </Card>
+    </AuthLayout>
   )
 }
