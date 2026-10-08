@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getSession } from '@/lib/auth'
-import { btnCls, btn2Cls } from '@/components/ui'
+import { btnCls } from '@/components/ui'
 
 const FEATURES = [
   { t: 'Tabata, TRX a CrossFit', d: 'Hotová časová struktura pro každý formát. U CrossFitu zkombinujete třeba AMRAP 20 min a EMOM 10 min.' },
@@ -15,15 +15,10 @@ export default async function Home() {
       <section className="grid items-center gap-10 md:grid-cols-[1.1fr_0.9fr]">
         <div className="space-y-6">
           <p className="inline-flex rounded-full bg-accent-soft px-3 py-1 text-sm font-semibold">Pro trenéry skupinových lekcí</p>
-          <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">Trénink na míru skupině. Za pár sekund.</h1>
+          <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">Skupinový trénink na míru. Za pár sekund.</h1>
           <p className="max-w-xl text-lg text-muted">Zadejte úroveň, vybavení a časy. EFGEN sestaví rozcvičku, hlavní část i zklidnění a vy si ho doladíte.</p>
           <div className="flex flex-wrap gap-3">
-            {s ? <Link href="/app/novy" className={btnCls}>Nový trénink</Link> : (
-              <>
-                <Link href="/registrace" className={btnCls}>Vyzkoušet zdarma</Link>
-                <Link href="/prihlaseni" className={btn2Cls}>Přihlásit se</Link>
-              </>
-            )}
+            <Link href={s ? '/app/novy' : '/registrace'} className={btnCls}>{s ? 'Nový trénink' : 'Vyzkoušet zdarma'}</Link>
           </div>
         </div>
 
