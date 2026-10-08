@@ -12,6 +12,8 @@ export type EmailResult = { ok: true; message: string } | { ok: false; error: st
 const LIMIT = Math.max(1, Number(process.env.EMAIL_DAILY_LIMIT) || 5)
 /** Odesílatel z prostředí. Odstraní okolní uvozovky a mezery (Vercel bere hodnoty doslova). */
 const mailFrom = () => (process.env.MAIL_FROM ?? '').trim().replace(/^["']|["']$/g, '').trim() || 'EFGEN <trenink@efgen.pro>'
+/** Číslovka + správný tvar slova „e-mail“ (1 e-mail, 2 až 4 e-maily, jinak e-mailů). */
+const emailu = (n: number) => `${n} ${n === 1 ? 'e-mail' : n >= 2 && n <= 4 ? 'e-maily' : 'e-mailů'}`
 const DAY_MS = 24 * 60 * 60 * 1000
 const fmt = (d: Date) => d.toLocaleString('cs-CZ', { timeZone: 'Europe/Prague', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })
 const slug = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'trenink'
@@ -37,7 +39,7 @@ export async function emailWorkoutAction(raw: unknown): Promise<EmailResult> {
   const before = await recent()
   if (before.error) return { ok: false, error: 'Odeslání se nepovedlo. Zkuste to později.' }
   const limitMsg = (rows: { sent_at: string }[]) =>
-    `Dnes jste už poslali ${LIMIT} e-mailů. Další můžete poslat po ${fmt(new Date(new Date(rows[0].sent_at).getTime() + DAY_MS))}.`
+    `Dnes jste už poslali ${emailu(LIMIT)}. Další můžete poslat po ${fmt(new Date(new Date(rows[0].sent_at).getTime() + DAY_MS))}.`
   if (before.data.length >= LIMIT) return { ok: false, error: limitMsg(before.data) }
 
   // Nejdřív rezervujeme místo v limitu, aby souběžné požadavky limit nepřekročily.
@@ -73,5 +75,10 @@ export async function emailWorkoutAction(raw: unknown): Promise<EmailResult> {
     }
   }
   const left = Math.max(0, LIMIT - (after.data?.length ?? LIMIT))
-  return { ok: true, message: `Odesláno na ${session.profile.email}. Dnes můžete poslat ještě ${left} e-mailů.` }
+  return {
+    ok: true,
+    message: left > 0
+      ? `Odesláno na ${session.profile.email}. Dnes můžete poslat ještě ${emailu(left)}.`
+      : `Odesláno na ${session.profile.email}. Dnešní limit je vyčerpaný, další e-mail půjde poslat za 24 hodin od prvního odeslání.`,
+  }
 }
