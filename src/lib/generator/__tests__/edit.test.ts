@@ -17,7 +17,7 @@ const lib: Exercise[] = XLSX.utils.sheet_to_json<Record<string, any>>(wb.Sheets[
   default_value: r.vychozi_hodnota ?? null, unit: r.jednotka ?? 'opakování', description: r.popis, video_url: r.video_url ?? null, active: true,
 }))
 const ALL_EQ = [...new Set(lib.flatMap((e) => e.equipment))]
-const base: GeneratorInput = { level: 'pokročilý', muscles: [], equipment: ALL_EQ, environment: 'uvnitř', format: 'Tabata', warmupMin: 5, mainMin: 20, cooldownMin: 5, cardioStrength: 3, seed: 11 }
+const base: GeneratorInput = { level: 'pokročilý', muscles: [], equipment: ALL_EQ, environment: 'uvnitř', format: 'Kruhový trénink', warmupMin: 5, mainMin: 20, cooldownMin: 5, cardioStrength: 3, seed: 11 }
 const gen = (o: Partial<GeneratorInput> = {}): GeneratedWorkout => {
   const r = generateWorkout(lib, { ...base, ...o }); assert.ok(r.ok); return r.workout
 }
@@ -26,18 +26,18 @@ const scope = (w: GeneratedWorkout, bi: number) => ({
 })
 const mainIdx = (w: GeneratedWorkout) => w.blocks.findIndex((b) => b.key === 'hlavní')
 
-test('Tabata: odebrání a přidání cviku přepočítá čas (n × 4 min + pauzy)', () => {
+test('Kruhový trénink: odebrání a přidání cviku přepočítá čas (stanice × kola + pauzy)', () => {
   let w = gen()
   const bi = mainIdx(w)
-  assert.equal(w.blocks[bi].exercises.length, 4)
-  assert.equal(w.blocks[bi].minutes, 19)
+  assert.equal(w.blocks[bi].exercises.length, 6)
+  assert.equal(w.blocks[bi].minutes, 20) // 6 stanic × 3 kola × 1 min + 2 pauzy
   w = removeExercise(w, bi, 0)
-  assert.equal(w.blocks[bi].exercises.length, 3)
-  assert.equal(w.blocks[bi].minutes, 14) // 3×4 + 2×1
-  assert.equal(w.totalMinutes, 5 + 14 + 5)
+  assert.equal(w.blocks[bi].exercises.length, 5)
+  assert.equal(w.blocks[bi].minutes, 17) // 5×3×1 + 2×1
+  assert.equal(w.totalMinutes, 5 + 17 + 5)
   const add = searchLibrary(lib, scope(w, bi), '')[0]
   w = addExercise(w, bi, toWorkoutExercise(add, false))
-  assert.equal(w.blocks[bi].minutes, 19)
+  assert.equal(w.blocks[bi].minutes, 20)
 })
 
 test('TRX: změna parametrů (kola, práce) přepočítá hlavní část', () => {

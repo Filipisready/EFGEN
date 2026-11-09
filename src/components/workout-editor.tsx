@@ -40,7 +40,7 @@ export function WorkoutEditor({ workout: w, onChange }: { workout: GeneratedWork
     close()
   }
 
-  const derived = w.format === 'Tabata' || w.format === 'TRX'
+  const derived = w.format !== 'CrossFit'
   const numField = (label: string, k: 'workSec' | 'restSec' | 'rounds' | 'pauseSec') => (
     <label className="space-y-1 text-sm"><span>{label}</span>
       <input type="number" inputMode="numeric" min={0} value={w.params[k]} onChange={(e) => onChange(setParams(w, { [k]: Number(e.target.value) }))} className={inputCls} />
@@ -71,9 +71,9 @@ export function WorkoutEditor({ workout: w, onChange }: { workout: GeneratedWork
           <summary className="cursor-pointer text-sm font-semibold">Časy formátu</summary>
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {numField('Práce (s)', 'workSec')}
-            {numField(w.format === 'TRX' ? 'Přechod (s)' : 'Pauza (s)', 'restSec')}
-            {numField(w.format === 'Tabata' ? 'Kol na cvik' : 'Kol', 'rounds')}
-            {numField(w.format === 'Tabata' ? 'Pauza mezi cviky (s)' : 'Pauza mezi koly (s)', 'pauseSec')}
+            {numField('Přechod (s)', 'restSec')}
+            {numField('Kol', 'rounds')}
+            {numField('Pauza mezi koly (s)', 'pauseSec')}
           </div>
         </details>
       )}

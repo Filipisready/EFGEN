@@ -11,3 +11,9 @@ Stack: Next.js (TypeScript) · Supabase (PostgreSQL + Auth) · Vercel · Resend.
 4. Import knihovny: `npx tsx --env-file=.env.local scripts/import-exercises.ts`
 
 Pozn.: pokud `npm` hlásí chybu oprávnění k cache, použijte `npm install --cache /tmp/npmcache`.
+
+## Provoz a údržba
+- **Denní probuzení databáze:** `vercel.json` plánuje volání `/api/keepalive` (denně). Bezplatný Supabase projekt se bez aktivity po týdnu uspí. Volitelně nastavte proměnnou `CRON_SECRET` ve Vercelu, endpoint ji pak vyžaduje.
+- **Obnova uspaného projektu:** Supabase → projekt → *Restore project*.
+- **Záloha dat:** v aplikaci Admin → Uživatelé → *Stáhnout zálohu dat*.
+- **Migrace databáze:** soubory v `supabase/migrations/` se spouštějí ručně v Supabase SQL Editoru v pořadí 0001, 0002, 0003.

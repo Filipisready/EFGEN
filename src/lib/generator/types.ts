@@ -1,16 +1,16 @@
 import type { Exercise } from '@/lib/constants'
 
 export type Level = 'začátečník' | 'pokročilý' | 'expert'
-export type Format = 'Tabata' | 'TRX' | 'CrossFit'
+export type Format = 'Kruhový trénink' | 'TRX' | 'CrossFit'
 export type Subtype = 'AMRAP' | 'EMOM' | 'For Time'
 export type BlockKey = 'rozcvička' | 'hlavní' | 'zklidnění'
 
 /** Parametry šablony formátu (FR-36). Nevyplněné hodnoty se doplní výchozími. */
 export type TemplateParams = {
-  workSec?: number // Tabata, TRX: práce
-  restSec?: number // Tabata, TRX: pauza/přechod
-  rounds?: number // Tabata (kol na cvik), TRX (kol okruhu), For Time (kol)
-  pauseSec?: number // Tabata: pauza mezi cviky, TRX: pauza mezi koly
+  workSec?: number // kruhový trénink, TRX: práce na stanici
+  restSec?: number // kruhový trénink, TRX: přechod mezi stanicemi
+  rounds?: number // kruhový trénink, TRX: kol okruhu; CrossFit For Time: kol
+  pauseSec?: number // kruhový trénink, TRX: pauza mezi koly
 }
 
 /** Zadání, ze kterého trénink vznikl. Potřebné pro výměnu a přidání cviků po vygenerování. */

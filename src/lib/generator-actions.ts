@@ -16,7 +16,7 @@ const schema = z.object({
   muscles: z.array(z.enum(['nohy', 'záda', 'core', 'hrudník', 'ramena', 'paže'])).max(6),
   equipment: z.array(z.string().max(60)).max(40),
   environment: z.enum(['uvnitř', 'venku']),
-  format: z.enum(['Tabata', 'TRX', 'CrossFit']),
+  format: z.enum(['Kruhový trénink', 'TRX', 'CrossFit']),
   subtype: z.enum(['AMRAP', 'EMOM', 'For Time']).optional(),
   segments: z.array(z.object({ type: z.enum(['AMRAP', 'EMOM', 'For Time']), minutes: num(1, 60) })).min(1).max(4).optional(),
   warmupMin: num(0, 30),
@@ -49,7 +49,7 @@ const ctxSchema = z.object({
   level: z.enum(['začátečník', 'pokročilý', 'expert']),
   environment: z.enum(['uvnitř', 'venku']),
   equipment: z.array(z.string().max(60)).max(40),
-  format: z.enum(['Tabata', 'TRX', 'CrossFit']),
+  format: z.enum(['Kruhový trénink', 'TRX', 'CrossFit']),
   muscles: z.array(z.string().max(30)).max(10),
   cardioStrength: num(1, 5),
 })

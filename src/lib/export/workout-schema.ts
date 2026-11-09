@@ -13,12 +13,12 @@ const block = z.object({
 /** Ověření tréninku přijatého z prohlížeče před exportem nebo odesláním. */
 export const workoutSchema = z.object({
   title: str(100), date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), groupName: str(80).optional(), groupSize: z.number().int().min(1).max(500).optional(),
-  format: z.enum(['Tabata', 'TRX', 'CrossFit']), subtype: z.enum(['AMRAP', 'EMOM', 'For Time']).optional(),
+  format: z.enum(['Kruhový trénink', 'TRX', 'CrossFit']), subtype: z.enum(['AMRAP', 'EMOM', 'For Time']).optional(),
   totalMinutes: z.number().min(0).max(600), blocks: z.array(block).min(1).max(8),
   params: z.object({ workSec: z.number(), restSec: z.number(), rounds: z.number(), pauseSec: z.number() }),
   context: z.object({
     level: z.enum(['začátečník', 'pokročilý', 'expert']), environment: z.enum(['uvnitř', 'venku']), equipment: z.array(str(60)).max(40),
-    format: z.enum(['Tabata', 'TRX', 'CrossFit']), muscles: z.array(str(30)).max(10), cardioStrength: z.number().int().min(1).max(5),
+    format: z.enum(['Kruhový trénink', 'TRX', 'CrossFit']), muscles: z.array(str(30)).max(10), cardioStrength: z.number().int().min(1).max(5),
   }),
   note: str(1000).optional(), warnings: z.array(str(600)).max(10),
 })

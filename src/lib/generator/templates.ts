@@ -1,7 +1,7 @@
 import type { Format, Subtype, TemplateParams } from './types'
 
 export const DEFAULT_PARAMS: Record<Format, Required<TemplateParams>> = {
-  Tabata: { workSec: 20, restSec: 10, rounds: 8, pauseSec: 60 },
+  'Kruhový trénink': { workSec: 40, restSec: 20, rounds: 3, pauseSec: 60 },
   TRX: { workSec: 40, restSec: 20, rounds: 3, pauseSec: 60 },
   CrossFit: { workSec: 0, restSec: 0, rounds: 3, pauseSec: 0 },
 }
@@ -21,11 +21,7 @@ export function resolveParams(format: Format, p?: TemplateParams): Required<Temp
 /** Počet cviků hlavní části podle PRD kap. 7. */
 export function mainCount(format: Format, subtype: Subtype | undefined, mainMin: number, p: Required<TemplateParams>) {
   const sec = mainMin * 60
-  if (format === 'Tabata') {
-    const t = p.rounds * (p.workSec + p.restSec)
-    return clamp(Math.floor((sec + p.pauseSec) / (t + p.pauseSec)), 2, 8)
-  }
-  if (format === 'TRX') {
+  if (format !== 'CrossFit') {
     const s = p.workSec + p.restSec
     return clamp(Math.floor((sec - (p.rounds - 1) * p.pauseSec) / (p.rounds * s)), 4, 10)
   }
@@ -42,10 +38,7 @@ export function mainCount(format: Format, subtype: Subtype | undefined, mainMin:
 export const fmtSec = (s: number) => (s >= 60 && s % 60 === 0 ? `${s / 60} min` : s > 60 ? `${Math.floor(s / 60)} min ${s % 60} s` : `${s} s`)
 
 export function mainStructure(format: Format, subtype: Subtype | undefined, mainMin: number, n: number, p: Required<TemplateParams>) {
-  if (format === 'Tabata') {
-    return `${p.workSec} s práce / ${p.restSec} s pauza × ${p.rounds} kol na cvik (${fmtSec(p.rounds * (p.workSec + p.restSec))}), mezi cviky pauza ${fmtSec(p.pauseSec)}`
-  }
-  if (format === 'TRX') {
+  if (format !== 'CrossFit') {
     return `Okruh (${stanic(n)}): ${p.workSec} s práce / ${p.restSec} s přechod, ${p.rounds}× dokola, mezi koly pauza ${fmtSec(p.pauseSec)}`
   }
   if (subtype === 'EMOM') return `EMOM ${mainMin} min: každou minutu jeden cvik, ${cviku(n)} se střídají`
@@ -54,8 +47,7 @@ export function mainStructure(format: Format, subtype: Subtype | undefined, main
 }
 
 export function totalMainSeconds(format: Format, subtype: Subtype | undefined, mainMin: number, n: number, p: Required<TemplateParams>) {
-  if (format === 'Tabata') return n * p.rounds * (p.workSec + p.restSec) + (n - 1) * p.pauseSec
-  if (format === 'TRX') return p.rounds * n * (p.workSec + p.restSec) + (p.rounds - 1) * p.pauseSec
+  if (format !== 'CrossFit') return p.rounds * n * (p.workSec + p.restSec) + (p.rounds - 1) * p.pauseSec
   return mainMin * 60
 }
 

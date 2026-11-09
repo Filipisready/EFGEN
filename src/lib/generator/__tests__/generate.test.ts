@@ -19,7 +19,7 @@ const ALL_EQ = [...new Set(lib.flatMap((e) => e.equipment))]
 const rank = (l: string) => ['začátečník', 'pokročilý', 'expert'].indexOf(l)
 
 const base: GeneratorInput = {
-  level: 'pokročilý', muscles: [], equipment: ALL_EQ, environment: 'uvnitř', format: 'Tabata',
+  level: 'pokročilý', muscles: [], equipment: ALL_EQ, environment: 'uvnitř', format: 'Kruhový trénink',
   warmupMin: 5, mainMin: 20, cooldownMin: 5, cardioStrength: 3, seed: 1,
 }
 const gen = (o: Partial<GeneratorInput>) => generateWorkout(lib, { ...base, ...o })
@@ -30,7 +30,7 @@ test('počty cviků podle šablon (PRD kap. 7)', () => {
   const count = (o: Partial<GeneratorInput>) => {
     const r = gen(o); assert.ok(r.ok); return r.workout.blocks.find((b) => b.key === 'hlavní')!.exercises.length
   }
-  assert.equal(count({ format: 'Tabata', mainMin: 20 }), 4)
+  assert.equal(count({ format: 'Kruhový trénink', mainMin: 20 }), 6)
   assert.equal(count({ format: 'TRX', mainMin: 20 }), 6)
   assert.equal(count({ format: 'CrossFit', subtype: 'AMRAP', mainMin: 12 }), 3)
   assert.equal(count({ format: 'CrossFit', subtype: 'EMOM', mainMin: 12 }), 4)
@@ -42,7 +42,7 @@ test('tvrdá pravidla na 300 náhodných zadání', () => {
   const pick = <T,>(a: T[]) => a[Math.floor(rng() * a.length)]
   let errors = 0, warned = 0
   for (let i = 0; i < 300; i++) {
-    const format = pick(['Tabata', 'TRX', 'CrossFit'] as const)
+    const format = pick(['Kruhový trénink', 'TRX', 'CrossFit'] as const)
     const eq = ALL_EQ.filter(() => rng() < 0.6)
     if (format === 'TRX' && !eq.includes('TRX')) eq.push('TRX')
     const input: GeneratorInput = {

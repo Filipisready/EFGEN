@@ -18,7 +18,7 @@ type Seg = { type: 'AMRAP' | 'EMOM' | 'For Time'; minutes: string }
 export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
   const [level, setLevel] = useState<GeneratorInput['level']>('pokročilý')
   const [environment, setEnvironment] = useState<'uvnitř' | 'venku'>('uvnitř')
-  const [format, setFormat] = useState<GeneratorInput['format']>('Tabata')
+  const [format, setFormat] = useState<GeneratorInput['format']>('Kruhový trénink')
   const [segs, setSegs] = useState<Seg[]>([{ type: 'AMRAP', minutes: '20' }, { type: 'EMOM', minutes: '10' }])
   const [muscles, setMuscles] = useState<string[]>([])
   const [eq, setEq] = useState<string[]>([])
@@ -98,7 +98,7 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
         </Section>
 
         <Section n={2} title="Formát a časy">
-          <Segmented name="format" label="Formát" value={format} options={['Tabata', 'TRX', 'CrossFit'] as const} onChange={pickFormat} />
+          <Segmented name="format" label="Formát" value={format} options={['Kruhový trénink', 'TRX', 'CrossFit'] as const} onChange={pickFormat} />
           {cf ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
@@ -133,14 +133,14 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
             </div>
           )}
           <p className="tnum text-sm text-muted">Celkem <b className="text-ink">{total} min</b>. Nula = blok vynechat.</p>
-          {(format === 'Tabata' || format === 'TRX' || (cf && segs.some((x) => x.type === 'For Time'))) && (
+          {(format !== 'CrossFit' || segs.some((x) => x.type === 'For Time')) && (
             <details className="rounded-xl border border-line p-3">
               <summary className="cursor-pointer text-sm font-medium">Upřesnit časy formátu</summary>
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {format !== 'CrossFit' && par('workSec', 'Práce (s)', format === 'Tabata' ? '20' : '40')}
-                {format !== 'CrossFit' && par('restSec', format === 'TRX' ? 'Přechod (s)' : 'Pauza (s)', format === 'Tabata' ? '10' : '20')}
-                {par('rounds', format === 'Tabata' ? 'Kol na cvik' : 'Kol', format === 'Tabata' ? '8' : '3')}
-                {format !== 'CrossFit' && par('pauseSec', format === 'Tabata' ? 'Pauza mezi cviky (s)' : 'Pauza mezi koly (s)', '60')}
+                {format !== 'CrossFit' && par('workSec', 'Práce (s)', '40')}
+                {format !== 'CrossFit' && par('restSec', 'Přechod (s)', '20')}
+                {par('rounds', 'Kol', '3')}
+                {format !== 'CrossFit' && par('pauseSec', 'Pauza mezi koly (s)', '60')}
               </div>
             </details>
           )}

@@ -3,7 +3,7 @@ import { getSession } from '@/lib/auth'
 import { btnCls } from '@/components/ui'
 
 const FEATURES = [
-  { t: 'Tabata, TRX a CrossFit', d: 'Hotová časová struktura pro každý formát. U CrossFitu zkombinujete třeba AMRAP 20 min a EMOM 10 min.' },
+  { t: 'Kruhový trénink, TRX a CrossFit', d: 'Hotová časová struktura pro každý formát. U CrossFitu zkombinujete třeba AMRAP 20 min a EMOM 10 min.' },
   { t: 'Cviky podle vašeho vybavení', d: 'Zaškrtnete pomůcky, prostředí a úroveň skupiny. Aplikace vybere jen to, co dává smysl.' },
   { t: 'Upravte, uložte, pošlete', d: 'Vyměňte cvik, přidejte poznámku a trénink si stáhněte jako PDF, obrázek nebo pošlete e-mailem.' },
 ]

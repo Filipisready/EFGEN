@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "EFGEN",
-  description: "Generátor skupinových tréninků pro trenéry: Tabata, TRX a CrossFit.",
+  description: "Skupinový trénink na míru. Za pár sekund.",
 };
 
 export const viewport = { themeColor: [{ media: "(prefers-color-scheme: light)", color: "#f6f6f1" }, { media: "(prefers-color-scheme: dark)", color: "#0c0d0b" }] };

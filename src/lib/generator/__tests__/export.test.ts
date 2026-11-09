@@ -23,7 +23,7 @@ test('každý vygenerovaný trénink projde kontrolou před exportem (200 zadán
   const rng = mulberry32(7)
   const pick = <T,>(a: T[]) => a[Math.floor(rng() * a.length)]
   for (let i = 0; i < 200; i++) {
-    const format = pick(['Tabata', 'TRX', 'CrossFit'] as const)
+    const format = pick(['Kruhový trénink', 'TRX', 'CrossFit'] as const)
     const input: GeneratorInput = {
       level: pick(['začátečník', 'pokročilý', 'expert'] as const), environment: pick(['uvnitř', 'venku'] as const), muscles: [],
       equipment: format === 'TRX' ? ['TRX'] : ALL_EQ.filter(() => rng() < 0.6), format,

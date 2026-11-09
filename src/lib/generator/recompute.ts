@@ -5,14 +5,14 @@ const round1 = (n: number) => Math.round(n * 10) / 10
 
 /**
  * Přepočítá časy a popisy struktury po jakékoli změně (PRD FR-35).
- * Tabata a TRX: délka hlavní části vyplývá z počtu cviků a parametrů šablony.
+ * Kruhový trénink a TRX: délka hlavní části vyplývá z počtu cviků a parametrů šablony.
  * CrossFit: délka části je zadaná, mění se jen rozpis (EMOM minuty).
  */
 export function recompute(w: GeneratedWorkout): GeneratedWorkout {
   const blocks = w.blocks.map((b) => {
     const n = b.exercises.length
     if (b.key === 'hlavní') {
-      const derived = w.format === 'Tabata' || w.format === 'TRX'
+      const derived = w.format !== 'CrossFit'
       const minutes = derived ? (n ? round1(totalMainSeconds(w.format, undefined, 0, n, w.params) / 60) : 0) : b.minutes
       const exercises = b.exercises.map((e, i) => {
         if (b.type !== 'EMOM' || !n) return { ...e, note: undefined }

@@ -8,10 +8,10 @@ import { recompute } from './recompute'
 const DAY = (d = new Date()) => d.toISOString().slice(0, 10)
 
 /** Měkká pravidla pořadí (PRD 6.5, pravidla 7 až 11). Vrací násobek váhy kandidáta. */
-function sequenceFactor(prev: Exercise | undefined, cand: Exercise, tabata: boolean): number {
+function sequenceFactor(prev: Exercise | undefined, cand: Exercise, circuit: boolean): number {
   if (!prev) return 1
   let f = 1
-  if (prev.muscle === cand.muscle) f *= tabata ? 0.08 : 0.25
+  if (prev.muscle === cand.muscle) f *= circuit ? 0.08 : 0.25
   if (prev.movement === cand.movement && cand.movement !== 'jiné') f *= 0.3
   if (prev.movement === 'tlak' && cand.movement === 'tlak') f *= 0.2
   if (prev.movement === 'skok' && cand.movement === 'skok') f *= 0.1
@@ -25,7 +25,7 @@ function sequenceFactor(prev: Exercise | undefined, cand: Exercise, tabata: bool
 function pickSequence(pool: Exercise[], n: number, rng: Rng, opts: {
   targetK?: number
   muscles?: string[] // preferované partie
-  tabata?: boolean
+  circuit?: boolean // kruhový trénink: stanice střídají partie
   groupLevel?: string // cviky vlastní úrovně skupiny mají přednost před o stupeň nižšími
   maxFromGroupB?: { isB: (e: Exercise) => boolean; max: number }
 }): Exercise[] {
@@ -47,7 +47,7 @@ function pickSequence(pool: Exercise[], n: number, rng: Rng, opts: {
         w *= hit ? 4 : e.muscle === 'celé tělo' ? 1.2 : 0.15
         if (hit && !allCovered && !covered.has(e.muscle)) w *= 3
       }
-      return w * sequenceFactor(prev, e, !!opts.tabata)
+      return w * sequenceFactor(prev, e, !!opts.circuit)
     })
     const pick = weightedPick(cands, weights, rng)
     chosen.push(pick)
@@ -86,7 +86,7 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
     const pool = mainPool.filter((e) => !allMain.includes(e))
     const groupB = trx ? { isB: (e: Exercise) => !e.equipment.includes('TRX'), max: Math.floor(n * 0.2) } : undefined
     const ex = pickSequence(pool, n, rng, {
-      targetK: input.cardioStrength, muscles: input.muscles, tabata: input.format === 'Tabata', maxFromGroupB: groupB, groupLevel: input.level,
+      targetK: input.cardioStrength, muscles: input.muscles, circuit: input.format === 'Kruhový trénink', maxFromGroupB: groupB, groupLevel: input.level,
     })
     allMain.push(...ex)
     const label = sg.type ? `${sg.type} ${sg.minutes} min` : undefined
@@ -107,7 +107,7 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
         return w
       }),
     }
-    if (Math.abs(sec - sg.minutes * 60) > 60 && (input.format === 'Tabata' || input.format === 'TRX')) {
+    if (Math.abs(sec - sg.minutes * 60) > 60 && input.format !== 'CrossFit') {
       blk.minutes = Math.round((sec / 60) * 10) / 10
       warnings.push(`Struktura formátu vychází na ${fmtSec(sec)} (zadáno ${sg.minutes} min), čas hlavní části jsme upravili.`)
     }
