@@ -1,6 +1,16 @@
 import type { GeneratedWorkout } from '@/lib/generator/types'
 import { altLabel } from '@/lib/generator/display'
 
+/** Značka EFGEN s pevnými barvami (export je vždy ve světlém provedení). */
+function Mark({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true" style={{ flexShrink: 0 }}>
+      <rect width="64" height="64" rx="16" fill="#e2aa7d" />
+      <path d="M21 17h24M21 32h18M21 47h24M21 17v30" fill="none" stroke="#221d18" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 const NAMES = { rozcvička: 'Rozcvička', hlavní: 'Hlavní část', zklidnění: 'Zklidnění' } as const
 
 /** Karta pro export do obrázku. Používá pevné barvy (vždy světlá), aby výsledek nezávisel na režimu zařízení. */
@@ -8,7 +18,10 @@ export function WorkoutImageCard({ w }: { w: GeneratedWorkout }) {
   const meta = [new Date(w.date).toLocaleDateString('cs-CZ'), `${w.format}${w.subtype ? ' ' + w.subtype : ''}`, `celkem ${w.totalMinutes} min`, w.groupName, w.groupSize ? `${w.groupSize} osob` : null].filter(Boolean).join(' · ')
   return (
     <div style={{ width: 760, background: '#fff', color: '#111', padding: 32, fontFamily: 'Arial, Helvetica, sans-serif', lineHeight: 1.35 }}>
-      <div style={{ fontSize: 30, fontWeight: 700 }}>{w.title}</div>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+        <div style={{ fontSize: 30, fontWeight: 700 }}>{w.title}</div>
+        <Mark size={34} />
+      </div>
       <div style={{ color: '#555', fontSize: 16, marginTop: 4 }}>{meta}</div>
       {w.blocks.map((b, bi) => (
         <div key={bi} style={{ marginTop: 22 }}>
@@ -32,7 +45,7 @@ export function WorkoutImageCard({ w }: { w: GeneratedWorkout }) {
         </div>
       ))}
       {w.note && <div style={{ marginTop: 18, borderTop: '1px solid #ddd', paddingTop: 10, fontSize: 16 }}><b>Poznámka:</b> {w.note}</div>}
-      <div style={{ marginTop: 22, color: '#999', fontSize: 13 }}>EFGEN · efgen.pro</div>
+      <div style={{ marginTop: 22, color: '#999', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}><Mark size={16} />EFGEN · efgen.pro</div>
     </div>
   )
 }

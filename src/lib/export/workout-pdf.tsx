@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { Document, Font, Page, StyleSheet, Text, View, renderToBuffer } from '@react-pdf/renderer'
+import { Document, Font, Page, Path, Rect, StyleSheet, Svg, Text, View, renderToBuffer } from '@react-pdf/renderer'
 import type { GeneratedWorkout } from '@/lib/generator/types'
 import { altLabel } from '@/lib/generator/display'
 
@@ -19,6 +19,16 @@ function registerFonts() {
   registered = true
 }
 
+/** Značka EFGEN (zaoblený čtverec s písmenem E), malá a decentní. */
+function Mark({ size }: { size: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 64 64">
+      <Rect width={64} height={64} rx={16} ry={16} fill="#e2aa7d" />
+      <Path d="M21 17h24M21 32h18M21 47h24M21 17v30" fill="none" stroke="#221d18" strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  )
+}
+
 const NAMES = { rozcvička: 'Rozcvička', hlavní: 'Hlavní část', zklidnění: 'Zklidnění' } as const
 const c = { ink: '#111111', mute: '#555555', line: '#d4d4d4', badge: '#eeeeee' }
 
@@ -26,6 +36,8 @@ const s = StyleSheet.create({
   page: { fontFamily: 'Roboto', fontSize: 11, color: c.ink, paddingTop: 36, paddingBottom: 48, paddingHorizontal: 40, lineHeight: 1.35 },
   title: { fontSize: 22, fontWeight: 700, marginBottom: 8, lineHeight: 1.2 },
   meta: { fontSize: 11, color: c.mute },
+  headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  footBrand: { flexDirection: 'row', alignItems: 'center' },
   header: { borderBottomWidth: 1, borderBottomColor: c.line, paddingBottom: 10, marginBottom: 6 },
   warn: { backgroundColor: '#fff7e0', padding: 6, marginTop: 8, fontSize: 10 },
   block: { marginTop: 14 },
@@ -51,7 +63,10 @@ export function WorkoutPdf({ w }: { w: GeneratedWorkout }) {
     <Document title={w.title} author="EFGEN" creator="efgen.pro">
       <Page size="A4" style={s.page}>
         <View style={s.header}>
-          <Text style={s.title}>{w.title}</Text>
+          <View style={s.headRow}>
+            <Text style={[s.title, { flex: 1 }]}>{w.title}</Text>
+            <View style={{ marginLeft: 12, marginTop: 3 }}><Mark size={22} /></View>
+          </View>
           <Text style={s.meta}>{meta}</Text>
           <Text style={[s.meta, { marginTop: 2 }]}>{summary}</Text>
         </View>
@@ -86,7 +101,7 @@ export function WorkoutPdf({ w }: { w: GeneratedWorkout }) {
         })}
         {w.note ? <View style={s.wnote} wrap={false}><Text><Text style={{ fontWeight: 700 }}>Poznámka: </Text>{w.note}</Text></View> : null}
         <View style={s.footer} fixed>
-          <Text>EFGEN · efgen.pro</Text>
+          <View style={s.footBrand}><Mark size={11} /><Text style={{ marginLeft: 5 }}>EFGEN · efgen.pro</Text></View>
           <Text render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
       </Page>
