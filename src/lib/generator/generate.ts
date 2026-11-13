@@ -11,7 +11,7 @@ const DAY = (d = new Date()) => d.toISOString().slice(0, 10)
 /** Oblast těla pro střídání stanic v kruhovém tréninku. */
 const REGION: Record<string, string> = {
   hrudník: 'horní', záda: 'horní', ramena: 'horní', biceps: 'horní', triceps: 'horní',
-  břicho: 'střed', hýždě: 'dolní', 'přední stehna': 'dolní', 'zadní stehna': 'dolní', lýtka: 'dolní',
+  břicho: 'střed', 'šikmé břicho': 'střed', hýždě: 'dolní', 'přední stehna': 'dolní', 'zadní stehna': 'dolní', lýtka: 'dolní',
 }
 
 function sequenceFactor(prev: Exercise | undefined, cand: Exercise, circuit: boolean): number {
