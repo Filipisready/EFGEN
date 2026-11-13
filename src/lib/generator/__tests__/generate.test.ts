@@ -124,7 +124,7 @@ test('CrossFit: pomůcky se neuvádějí, pokud nejsou zvolené (kruhy, sáně, 
 })
 
 test('CrossFit nikdy nevybere cvik s pomůckou TRX, bosu, lano, roller ani stepper', () => {
-  const banned = ['TRX', 'bosu', 'lano', 'roller', 'stepper']
+  const banned = ['TRX', 'bosu', 'lano', 'roller', 'step']
   const eq = ALL_EQ.filter((x) => !banned.includes(x))
   for (let i = 0; i < 40; i++) {
     const r = gen({ format: 'CrossFit', segments: [{ type: 'AMRAP', minutes: 15 }, { type: 'EMOM', minutes: 8 }], equipment: eq, seed: 500 + i, level: 'expert' })

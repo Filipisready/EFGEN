@@ -50,6 +50,7 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
       }
       if (s.environment === 'uvnitř' || s.environment === 'venku') setEnvironment(s.environment)
       if (['začátečník', 'pokročilý', 'expert'].includes(s.level)) setLevel(s.level)
+      if (Number.isInteger(s.ks) && s.ks >= 1 && s.ks <= 5) setKs(s.ks)
     } catch { /* ignorujeme */ }
   }, [equipment])
 
@@ -70,7 +71,7 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
 
   function submit() {
     if (dirty && !confirm('Ruční úpravy tréninku se přegenerováním ztratí. Pokračovat?')) return
-    try { localStorage.setItem(STORE, JSON.stringify({ eq, environment, level })) } catch { /* ignorujeme */ }
+    try { localStorage.setItem(STORE, JSON.stringify({ eq, environment, level, ks })) } catch { /* ignorujeme */ }
     const p = Object.fromEntries(Object.entries(params).filter(([, v]) => v !== '').map(([k, v]) => [k, Number(v)]))
     start(async () => {
       const r = await generateAction({
