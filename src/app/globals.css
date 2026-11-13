@@ -1,36 +1,36 @@
 @import "tailwindcss";
 
 /*
- * Designový základ EFGEN: čistý, světlý/tmavý podle zařízení, jedna akcentní barva (limetková).
+ * Designový základ EFGEN: čistý, světlý/tmavý podle zařízení, jedna akcentní barva (teplá meruňková).
  * Barvy používejte přes sémantické názvy (bg, surface, ink, muted, line, accent), ne přes pevné odstíny.
  */
 :root {
-  --bg: #f6f6f1;
-  --surface: #ffffff;
-  --surface-2: #eeefe8;
-  --ink: #11120f;
-  --muted: #5d6157;
-  --line: #e1e2da;
-  --line-strong: #c9cbc0;
-  --accent: #c6f03c;
-  --accent-ink: #11120f;
-  --accent-soft: #eef8c6;
+  --bg: #f7f4ef;
+  --surface: #fffdfa;
+  --surface-2: #efe9e0;
+  --ink: #221d18;
+  --muted: #6b6258;
+  --line: #e6dfd4;
+  --line-strong: #d3c8b8;
+  --accent: #e2aa7d;
+  --accent-ink: #221d18;
+  --accent-soft: #f6e7d6;
   --danger: #b42318;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0c0d0b;
-    --surface: #161815;
-    --surface-2: #1f211d;
-    --ink: #f2f3ee;
-    --muted: #a3a89a;
-    --line: #2a2d26;
-    --line-strong: #3a3e35;
-    --accent: #c6f03c;
-    --accent-ink: #11120f;
-    --accent-soft: #2a3310;
+    --bg: #15120f;
+    --surface: #1e1a15;
+    --surface-2: #28231d;
+    --ink: #f3ede4;
+    --muted: #b0a596;
+    --line: #322b23;
+    --line-strong: #453c31;
+    --accent: #d99a6c;
+    --accent-ink: #1b1510;
+    --accent-soft: #3a2c1e;
     --danger: #f97066;
     color-scheme: dark;
   }

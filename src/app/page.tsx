@@ -16,9 +16,9 @@ export default async function Home() {
         <div className="space-y-6">
           <p className="inline-flex rounded-full bg-accent-soft px-3 py-1 text-sm font-semibold">Pro trenéry skupinových lekcí</p>
           <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">Skupinový trénink na míru. Za pár sekund.</h1>
-          <p className="max-w-xl text-lg text-muted">Zadejte úroveň, vybavení a časy. EFGEN sestaví rozcvičku, hlavní část i zklidnění a vy si ho doladíte.</p>
+          <p className="max-w-xl text-lg text-muted">Zadejte úroveň, vybavení a časy. EFGEN sestaví rozcvičku, hlavní část i závěrečný strečink a vy si ho doladíte.</p>
           <div className="flex flex-wrap gap-3">
-            <Link href={s ? '/app/novy' : '/registrace'} className={btnCls}>{s ? 'Nový trénink' : 'Vyzkoušet zdarma'}</Link>
+            <Link href={s ? '/app/novy' : '/registrace'} className={btnCls}>{s ? 'Nový trénink' : 'Vyzkoušet'}</Link>
           </div>
         </div>
 

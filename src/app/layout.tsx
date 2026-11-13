@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   description: "Skupinový trénink na míru. Za pár sekund.",
 };
 
-export const viewport = { themeColor: [{ media: "(prefers-color-scheme: light)", color: "#f6f6f1" }, { media: "(prefers-color-scheme: dark)", color: "#0c0d0b" }] };
+export const viewport = { themeColor: [{ media: "(prefers-color-scheme: light)", color: "#f7f4ef" }, { media: "(prefers-color-scheme: dark)", color: "#15120f" }] };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
