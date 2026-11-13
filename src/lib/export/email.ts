@@ -2,6 +2,8 @@ import type { GeneratedWorkout } from '@/lib/generator/types'
 import { altLabel } from '@/lib/generator/display'
 
 const NAMES = { rozcvička: 'Rozcvička', hlavní: 'Hlavní část', zklidnění: 'Zklidnění' } as const
+/** Logo v e-mailu musí být obrázek na veřejné adrese (SVG většina e-mailových aplikací blokuje). */
+const LOGO_URL = 'https://www.efgen.pro/email-logo.png'
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 function meta(w: GeneratedWorkout) {
@@ -32,6 +34,10 @@ export function buildEmail(w: GeneratedWorkout) {
   }).join('')
   const html = `<!doctype html><html lang="cs"><body style="margin:0;background:#f4f4f4;font-family:Arial,Helvetica,sans-serif;color:#111">
   <div style="max-width:640px;margin:0 auto;background:#fff;padding:24px">
+    <table role="presentation" cellspacing="0" cellpadding="0" style="margin-bottom:14px"><tr>
+      <td style="vertical-align:middle"><img src="${LOGO_URL}" width="28" height="28" alt="EFGEN" style="display:block;border:0;border-radius:7px"></td>
+      <td style="vertical-align:middle;padding-left:8px;font-size:15px;font-weight:bold;letter-spacing:.3px;color:#555">EFGEN</td>
+    </tr></table>
     <h1 style="font-size:24px;margin:0 0 4px">${esc(w.title)}</h1>
     <div style="color:#555">${esc(meta(w))}</div>
     ${w.warnings.map((m) => `<div style="background:#fff7e0;padding:8px;margin-top:10px;font-size:13px">${esc(m)}</div>`).join('')}

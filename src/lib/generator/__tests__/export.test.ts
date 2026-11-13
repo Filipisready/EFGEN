@@ -50,6 +50,7 @@ test('HTML e-mailu ošetřuje znaky a obsahuje bloky, časy a poznámky', () => 
   w = { ...w, note: 'Připravit "bedny"' }
   const { subject, html, text } = buildEmail(w)
   assert.ok(subject.includes('EFGEN'))
+  assert.ok(html.includes('https://www.efgen.pro/email-logo.png') && html.includes('alt="EFGEN"'))
   assert.ok(!html.includes('<script>') && html.includes('&lt;script&gt;'))
   assert.ok(html.includes('Test &lt;b&gt;&amp;&lt;/b&gt;'))
   assert.ok(html.includes('AMRAP 10 min') && html.includes('Rozcvička') && html.includes('Zklidnění'))
