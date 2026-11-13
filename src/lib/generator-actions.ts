@@ -6,14 +6,14 @@ import { generateWorkout } from '@/lib/generator/generate'
 import type { GenerateResult, WorkoutExercise } from '@/lib/generator/types'
 import { findReplacements, searchLibrary } from '@/lib/generator/suggest'
 import { toWorkoutExercise } from '@/lib/generator/pools'
-import type { Exercise } from '@/lib/constants'
+import { TARGET_MUSCLES, type Exercise } from '@/lib/constants'
 
 const num = (min: number, max: number) => z.coerce.number().int().min(min).max(max)
 const optNum = (min: number, max: number) => z.preprocess((v) => (v === '' || v == null ? undefined : v), num(min, max).optional())
 
 const schema = z.object({
   level: z.enum(['začátečník', 'pokročilý', 'expert']),
-  muscles: z.array(z.enum(['nohy', 'záda', 'core', 'hrudník', 'ramena', 'paže'])).max(6),
+  muscles: z.array(z.string().refine((m) => TARGET_MUSCLES.includes(m), 'Neplatná svalová partie.')).max(10),
   equipment: z.array(z.string().max(60)).max(40),
   environment: z.enum(['uvnitř', 'venku']),
   format: z.enum(['Kruhový trénink', 'TRX', 'CrossFit']),

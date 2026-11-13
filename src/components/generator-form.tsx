@@ -7,8 +7,8 @@ import { ExportBar } from '@/components/export-bar'
 import { SaveBar } from '@/components/save-bar'
 import { Alert, Field, btnCls, btn2Cls, inputCls } from '@/components/ui'
 import { Chip, ChipGroup, Section, Segmented, Stepper } from '@/components/controls'
+import { MUSCLE_GROUPS } from '@/lib/constants'
 
-const MUSCLES = ['nohy', 'záda', 'core', 'hrudník', 'ramena', 'paže']
 const KS = ['Kardio', 'Spíše kardio', 'Vyváženě', 'Spíše síla', 'Síla']
 const STORE = 'efgen.generator.v1'
 
@@ -148,9 +148,27 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
         </Section>
 
         <Section n={3} title="Zaměření">
-          <ChipGroup label="Svalové partie" hint="Nevybráno = všechny partie.">
-            {MUSCLES.map((m) => <Chip key={m} checked={muscles.includes(m)} onChange={() => toggle(muscles, setMuscles, m)}>{m}</Chip>)}
-          </ChipGroup>
+          <div className="space-y-3">
+            <p className="text-sm font-medium">Svalové partie <span className="font-normal text-muted">(nevybráno = všechny)</span></p>
+            {MUSCLE_GROUPS.map((g) => {
+              const all = g.muscles.every((m) => muscles.includes(m))
+              return (
+                <div key={g.label} className="space-y-1.5">
+                  <div className="flex items-center justify-between text-sm text-muted">
+                    <span>{g.label}</span>
+                    {g.muscles.length > 1 && (
+                      <button type="button" className="underline" onClick={() => setMuscles(all ? muscles.filter((m) => !(g.muscles as readonly string[]).includes(m)) : [...new Set([...muscles, ...g.muscles])])}>
+                        {all ? 'zrušit výběr' : 'vybrat vše'}
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {g.muscles.map((m) => <Chip key={m} checked={muscles.includes(m)} onChange={() => toggle(muscles, setMuscles, m)}>{m}</Chip>)}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
           <div className="space-y-2">
             <label className="flex items-baseline justify-between text-sm font-medium" htmlFor="ks">
               <span>Kardio ↔ síla</span><b className="text-base">{KS[ks - 1]}</b>

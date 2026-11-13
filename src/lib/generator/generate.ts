@@ -8,10 +8,17 @@ import { recompute } from './recompute'
 const DAY = (d = new Date()) => d.toISOString().slice(0, 10)
 
 /** Měkká pravidla pořadí (PRD 6.5, pravidla 7 až 11). Vrací násobek váhy kandidáta. */
+/** Oblast těla pro střídání stanic v kruhovém tréninku. */
+const REGION: Record<string, string> = {
+  hrudník: 'horní', záda: 'horní', ramena: 'horní', biceps: 'horní', triceps: 'horní',
+  břicho: 'střed', hýždě: 'dolní', 'přední stehna': 'dolní', 'zadní stehna': 'dolní', lýtka: 'dolní',
+}
+
 function sequenceFactor(prev: Exercise | undefined, cand: Exercise, circuit: boolean): number {
   if (!prev) return 1
   let f = 1
   if (prev.muscle === cand.muscle) f *= circuit ? 0.08 : 0.25
+  else if (circuit && REGION[prev.muscle] && REGION[prev.muscle] === REGION[cand.muscle]) f *= 0.5
   if (prev.movement === cand.movement && cand.movement !== 'jiné') f *= 0.3
   if (prev.movement === 'tlak' && cand.movement === 'tlak') f *= 0.2
   if (prev.movement === 'skok' && cand.movement === 'skok') f *= 0.1
@@ -44,7 +51,7 @@ function pickSequence(pool: Exercise[], n: number, rng: Rng, opts: {
       if (opts.targetK) w *= Math.exp(-0.6 * Math.abs(e.cardio_strength - opts.targetK))
       if (preferred) {
         const hit = preferred.has(e.muscle)
-        w *= hit ? 4 : e.muscle === 'celé tělo' ? 1.2 : 0.15
+        w *= hit ? 4 : e.muscle === 'celé tělo' ? 1.2 : 0.04
         if (hit && !allCovered && !covered.has(e.muscle)) w *= 3
       }
       return w * sequenceFactor(prev, e, !!opts.circuit)
