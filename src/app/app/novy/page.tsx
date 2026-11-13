@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { GeneratorForm } from '@/components/generator-form'
 
-export const metadata = { title: 'Nový trénink · EFGEN' }
+export const metadata = { title: 'Nový trénink – EFGEN' }
 
 export default async function Page() {
   const supabase = await createClient()

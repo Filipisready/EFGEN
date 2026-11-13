@@ -3,7 +3,7 @@ import { requireUser } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { NameForm, PasswordForm } from '@/components/profile-forms'
 
-export const metadata = { title: 'Profil · EFGEN' }
+export const metadata = { title: 'Profil – EFGEN' }
 
 export default async function Page() {
   const { profile } = await requireUser()
@@ -13,7 +13,7 @@ export default async function Page() {
     <div className="max-w-md space-y-8">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold">Profil</h1>
-        <p className="text-muted">{profile.email}{profile.role === 'admin' && ' · administrátor'}</p>
+        <p className="text-muted">{profile.email}{profile.role === 'admin' && ' – administrátor'}</p>
         <p className="text-sm text-muted">Uložených tréninků: <Link href="/app/historie" className="underline">{count ?? 0}</Link></p>
       </div>
       <section className="space-y-3"><h2 className="text-lg font-semibold">Jméno</h2><NameForm name={profile.display_name ?? ''} /></section>

@@ -26,7 +26,7 @@ export default async function Home() {
         <div aria-hidden="true" className="rounded-3xl border border-line bg-surface p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted">Ukázka</p>
           <p className="mt-1 text-xl font-bold">CrossFit AMRAP + EMOM</p>
-          <p className="text-sm text-muted tnum">celkem 40 min · 14 osob</p>
+          <p className="text-sm text-muted tnum">celkem 40 min – 14 osob</p>
           <div className="mt-4 space-y-3">
             {[['Thruster s činkami', '10×'], ['Švih s kettlebellem', '15×'], ['Přeskok bedny', '10×']].map(([n, v], i) => (
               <div key={n} className="flex items-center gap-3">
@@ -36,7 +36,7 @@ export default async function Home() {
               </div>
             ))}
           </div>
-          <div className="mt-4 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-accent-ink tnum">AMRAP 20 min · co nejvíc kol</div>
+          <div className="mt-4 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-accent-ink tnum">AMRAP 20 min – co nejvíc kol</div>
         </div>
       </section>
 

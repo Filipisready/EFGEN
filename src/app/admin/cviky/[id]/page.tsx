@@ -5,7 +5,7 @@ import { ExerciseForm } from '@/components/exercise-form'
 import { ConfirmButton } from '@/components/confirm-button'
 import type { Exercise } from '@/lib/constants'
 
-export const metadata = { title: 'Úprava cviku · EFGEN' }
+export const metadata = { title: 'Úprava cviku – EFGEN' }
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params

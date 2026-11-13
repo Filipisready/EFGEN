@@ -4,7 +4,7 @@ import { toggleExercise } from '@/lib/exercise-actions'
 import { BLOCKS, FORMATS, LEVELS, MUSCLES, type Exercise } from '@/lib/constants'
 import { btnCls, btn2Cls, inputCls } from '@/components/ui'
 
-export const metadata = { title: 'Cviky · EFGEN' }
+export const metadata = { title: 'Cviky – EFGEN' }
 
 type SP = { q?: string; muscle?: string; level?: string; format?: string; block?: string; stav?: string }
 
@@ -53,7 +53,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
               <Link href={`/admin/cviky/${e.id}`} className="font-medium underline-offset-2 hover:underline">{e.name}</Link>
               {!e.active && <span className="ml-2 rounded bg-surface-2 px-1.5 py-0.5 text-xs">neaktivní</span>}
               <p className="text-sm text-muted">
-                {e.muscle} · {e.level} · {e.formats.join(', ')} · {e.blocks.join(', ')} · {e.equipment.join(', ') || 'vlastní váha'}
+                {e.muscle} – {e.level} – {e.formats.join(', ')} – {e.blocks.join(', ')} – {e.equipment.join(', ') || 'vlastní váha'}
               </p>
             </div>
             <form action={toggleExercise.bind(null, e.id, !e.active)}>

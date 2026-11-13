@@ -57,8 +57,8 @@ const s = StyleSheet.create({
 
 export function WorkoutPdf({ w }: { w: GeneratedWorkout }) {
   const date = new Date(w.date).toLocaleDateString('cs-CZ')
-  const meta = [date, `${w.format}${w.subtype ? ' ' + w.subtype : ''}`, `celkem ${w.totalMinutes} min`, w.groupName, w.groupSize ? `${w.groupSize} osob` : null].filter(Boolean).join(' · ')
-  const summary = w.blocks.map((b) => `${b.label ?? NAMES[b.key]}${b.label ? '' : ' ' + b.minutes + ' min'}`).join(' · ')
+  const meta = [date, `${w.format}${w.subtype ? ' ' + w.subtype : ''}`, `celkem ${w.totalMinutes} min`, w.groupName, w.groupSize ? `${w.groupSize} osob` : null].filter(Boolean).join(' – ')
+  const summary = w.blocks.map((b) => `${b.label ?? NAMES[b.key]}${b.label ? '' : ' ' + b.minutes + ' min'}`).join(' – ')
   return (
     <Document title={w.title} author="EFGEN" creator="efgen.pro">
       <Page size="A4" style={s.page}>
@@ -91,7 +91,7 @@ export function WorkoutPdf({ w }: { w: GeneratedWorkout }) {
             <View key={bi} style={s.block}>
               {/* Nadpis bloku drží pohromadě s prvním cvikem, aby nezůstal osamocený na konci strany. */}
               <View wrap={false}>
-                <Text style={s.blockTitle}>{b.label ? `Hlavní část: ${b.label}` : `${NAMES[b.key]} · ${b.minutes} min`}</Text>
+                <Text style={s.blockTitle}>{b.label ? `Hlavní část: ${b.label}` : `${NAMES[b.key]} – ${b.minutes} min`}</Text>
                 <Text style={s.structure}>{b.structure}</Text>
                 {b.exercises[0] ? row(b.exercises[0], 0) : null}
               </View>
@@ -101,7 +101,7 @@ export function WorkoutPdf({ w }: { w: GeneratedWorkout }) {
         })}
         {w.note ? <View style={s.wnote} wrap={false}><Text><Text style={{ fontWeight: 700 }}>Poznámka: </Text>{w.note}</Text></View> : null}
         <View style={s.footer} fixed>
-          <View style={s.footBrand}><Mark size={11} /><Text style={{ marginLeft: 5 }}>EFGEN · efgen.pro</Text></View>
+          <View style={s.footBrand}><Mark size={11} /><Text style={{ marginLeft: 5 }}>EFGEN – efgen.pro</Text></View>
           <Text render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
       </Page>

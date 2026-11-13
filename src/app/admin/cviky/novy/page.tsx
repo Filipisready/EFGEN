@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { ExerciseForm } from '@/components/exercise-form'
 
-export const metadata = { title: 'Nový cvik · EFGEN' }
+export const metadata = { title: 'Nový cvik – EFGEN' }
 
 export default async function Page() {
   const supabase = await createClient()

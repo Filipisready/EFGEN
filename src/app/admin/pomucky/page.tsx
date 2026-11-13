@@ -4,7 +4,7 @@ import { Alert, Field, btnCls, btn2Cls, inputCls } from '@/components/ui'
 import { ConfirmButton } from '@/components/confirm-button'
 import { FORMATS } from '@/lib/constants'
 
-export const metadata = { title: 'Pomůcky · EFGEN' }
+export const metadata = { title: 'Pomůcky – EFGEN' }
 
 type Eq = { name: string; note: string | null; cf_label: string | null; formats: string[] }
 

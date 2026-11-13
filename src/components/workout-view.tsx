@@ -4,18 +4,18 @@ import { altLabel } from '@/lib/generator/display'
 const NAMES = { rozcvička: 'Rozcvička', hlavní: 'Hlavní část', zklidnění: 'Zklidnění' } as const
 
 export function WorkoutView({ w }: { w: GeneratedWorkout }) {
-  const sub = w.subtype ? ` · ${w.subtype}` : ''
+  const sub = w.subtype ? ` – ${w.subtype}` : ''
   return (
     <article className="space-y-6 rounded-xl border border-line p-4 sm:p-6">
       <header className="space-y-1 border-b border-line pb-4">
         <h2 className="text-2xl font-bold">{w.title}</h2>
         <p className="text-muted">
-          {new Date(w.date).toLocaleDateString('cs-CZ')} · {w.format}{sub} · celkem {w.totalMinutes} min
-          {w.groupName && <> · {w.groupName}</>}
-          {w.groupSize && <> · {w.groupSize} osob</>}
+          {new Date(w.date).toLocaleDateString('cs-CZ')} – {w.format}{sub} – celkem {w.totalMinutes} min
+          {w.groupName && <> – {w.groupName}</>}
+          {w.groupSize && <> – {w.groupSize} osob</>}
         </p>
         <p className="text-sm text-muted">
-          {w.blocks.map((b) => `${b.label ?? NAMES[b.key]} ${b.label ? '' : b.minutes + ' min'}`.trim()).join(' · ')}
+          {w.blocks.map((b) => `${b.label ?? NAMES[b.key]} ${b.label ? '' : b.minutes + ' min'}`.trim()).join(' – ')}
         </p>
       </header>
       {w.warnings.map((m) => (
@@ -24,7 +24,7 @@ export function WorkoutView({ w }: { w: GeneratedWorkout }) {
       {w.blocks.map((b) => (
         <section key={b.key} className="space-y-3">
           <div>
-            <h3 className="text-xl font-semibold">{b.label ? `Hlavní část: ${b.label}` : NAMES[b.key]} {!b.label && <span className="text-base font-normal text-muted">· {b.minutes} min</span>}</h3>
+            <h3 className="text-xl font-semibold">{b.label ? `Hlavní část: ${b.label}` : NAMES[b.key]} {!b.label && <span className="text-base font-normal text-muted">– {b.minutes} min</span>}</h3>
             <p className="text-sm text-muted">{b.structure}</p>
           </div>
           <ol className="space-y-3">

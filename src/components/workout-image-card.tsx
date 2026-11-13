@@ -15,7 +15,7 @@ const NAMES = { rozcvička: 'Rozcvička', hlavní: 'Hlavní část', zklidnění
 
 /** Karta pro export do obrázku. Používá pevné barvy (vždy světlá), aby výsledek nezávisel na režimu zařízení. */
 export function WorkoutImageCard({ w }: { w: GeneratedWorkout }) {
-  const meta = [new Date(w.date).toLocaleDateString('cs-CZ'), `${w.format}${w.subtype ? ' ' + w.subtype : ''}`, `celkem ${w.totalMinutes} min`, w.groupName, w.groupSize ? `${w.groupSize} osob` : null].filter(Boolean).join(' · ')
+  const meta = [new Date(w.date).toLocaleDateString('cs-CZ'), `${w.format}${w.subtype ? ' ' + w.subtype : ''}`, `celkem ${w.totalMinutes} min`, w.groupName, w.groupSize ? `${w.groupSize} osob` : null].filter(Boolean).join(' – ')
   return (
     <div style={{ width: 760, background: '#fff', color: '#111', padding: 32, fontFamily: 'Arial, Helvetica, sans-serif', lineHeight: 1.35 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
@@ -25,7 +25,7 @@ export function WorkoutImageCard({ w }: { w: GeneratedWorkout }) {
       <div style={{ color: '#555', fontSize: 16, marginTop: 4 }}>{meta}</div>
       {w.blocks.map((b, bi) => (
         <div key={bi} style={{ marginTop: 22 }}>
-          <div style={{ fontSize: 22, fontWeight: 700 }}>{b.label ? `Hlavní část: ${b.label}` : `${NAMES[b.key]} · ${b.minutes} min`}</div>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>{b.label ? `Hlavní část: ${b.label}` : `${NAMES[b.key]} – ${b.minutes} min`}</div>
           <div style={{ color: '#555', fontSize: 14, marginBottom: 8 }}>{b.structure}</div>
           {b.exercises.map((e, i) => (
             <div key={e.id} style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
@@ -45,7 +45,7 @@ export function WorkoutImageCard({ w }: { w: GeneratedWorkout }) {
         </div>
       ))}
       {w.note && <div style={{ marginTop: 18, borderTop: '1px solid #ddd', paddingTop: 10, fontSize: 16 }}><b>Poznámka:</b> {w.note}</div>}
-      <div style={{ marginTop: 22, color: '#999', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}><Mark size={16} />EFGEN · efgen.pro</div>
+      <div style={{ marginTop: 22, color: '#999', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}><Mark size={16} />EFGEN – efgen.pro</div>
     </div>
   )
 }

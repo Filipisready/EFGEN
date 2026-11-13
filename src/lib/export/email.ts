@@ -8,7 +8,7 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 
 function meta(w: GeneratedWorkout) {
   return [new Date(w.date).toLocaleDateString('cs-CZ'), `${w.format}${w.subtype ? ' ' + w.subtype : ''}`, `celkem ${w.totalMinutes} min`, w.groupName, w.groupSize ? `${w.groupSize} osob` : null]
-    .filter(Boolean).join(' · ')
+    .filter(Boolean).join(' – ')
 }
 const altOf = (w: GeneratedWorkout, e: GeneratedWorkout['blocks'][number]['exercises'][number]) => {
   const a = altLabel(w.format, e.name, e.altName)
@@ -28,7 +28,7 @@ export function buildEmail(w: GeneratedWorkout) {
         </td>
       </tr>`).join('')
     return `
-      <h2 style="font-size:18px;margin:22px 0 2px">${esc(b.label ? `Hlavní část: ${b.label}` : `${NAMES[b.key]} · ${b.minutes} min`)}</h2>
+      <h2 style="font-size:18px;margin:22px 0 2px">${esc(b.label ? `Hlavní část: ${b.label}` : `${NAMES[b.key]} – ${b.minutes} min`)}</h2>
       <div style="color:#555;font-size:13px;margin-bottom:8px">${esc(b.structure)}</div>
       <table role="presentation" cellspacing="0" cellpadding="0" style="width:100%">${rows}</table>`
   }).join('')

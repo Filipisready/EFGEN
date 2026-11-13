@@ -56,8 +56,8 @@ export function WorkoutEditor({ workout: w, onChange }: { workout: GeneratedWork
           <Badge tone="accent"><span className="tnum">{w.totalMinutes} min</span></Badge>
           <Badge>{w.format}{w.subtype ? ` ${w.subtype}` : ''}</Badge>
           <span className="tnum text-muted">{new Date(w.date).toLocaleDateString('cs-CZ')}</span>
-          {w.groupName && <span className="text-muted">· {w.groupName}</span>}
-          {w.groupSize && <span className="text-muted">· {w.groupSize} osob</span>}
+          {w.groupName && <span className="text-muted">– {w.groupName}</span>}
+          {w.groupSize && <span className="text-muted">– {w.groupSize} osob</span>}
         </div>
         <p className="tnum text-sm text-muted">{w.blocks.map((b) => `${b.label ?? NAMES[b.key]}${b.label ? '' : ' ' + b.minutes + ' min'}`).join(' → ')}</p>
       </header>
@@ -187,7 +187,7 @@ function OptionsList({ title, options, pending, err, onPick, onClose, onMore }: 
           <li key={o.id}>
             <button type="button" onClick={() => onPick(o)} className="block min-h-12 w-full rounded-lg px-2 py-2 text-left hover:bg-surface-2">
               <span className="font-semibold">{o.name}</span>
-              <span className="block text-sm text-muted">{o.muscle} · {o.level}{o.equipment.length ? ' · ' + o.equipment.join(', ') : ''}</span>
+              <span className="block text-sm text-muted">{o.muscle} – {o.level}{o.equipment.length ? ' – ' + o.equipment.join(', ') : ''}</span>
             </button>
           </li>
         ))}

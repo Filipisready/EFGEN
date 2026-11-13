@@ -1,4 +1,4 @@
-export const metadata = { title: 'Zásady ochrany soukromí · EFGEN' }
+export const metadata = { title: 'Zásady ochrany soukromí – EFGEN' }
 
 const H2 = ({ children }: { children: React.ReactNode }) => <h2 className="pt-4 text-xl font-semibold">{children}</h2>
 

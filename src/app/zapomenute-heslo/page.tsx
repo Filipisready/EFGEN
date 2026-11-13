@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui'
 import { ForgotForm } from '@/components/auth-forms'
 
-export const metadata = { title: 'Zapomenuté heslo · EFGEN' }
+export const metadata = { title: 'Zapomenuté heslo – EFGEN' }
 
 export default function Page() {
   return (

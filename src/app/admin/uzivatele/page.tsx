@@ -4,7 +4,7 @@ import { deleteUserAction } from '@/lib/admin-actions'
 import { Alert, btn2Cls } from '@/components/ui'
 import { ConfirmButton } from '@/components/confirm-button'
 
-export const metadata = { title: 'Uživatelé · EFGEN' }
+export const metadata = { title: 'Uživatelé – EFGEN' }
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ chyba?: string; ok?: string }> }) {
   const { chyba, ok } = await searchParams
@@ -31,7 +31,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
           <li key={u.id} className="flex flex-wrap items-center gap-3 p-3">
             <div className="min-w-0 flex-1">
               <span className="font-medium">{u.email}</span>{u.role === 'admin' && <span className="ml-2 rounded bg-surface-2 px-1.5 py-0.5 text-xs">admin</span>}
-              <p className="text-sm text-muted">{u.display_name ? `${u.display_name} · ` : ''}registrace {new Date(u.created_at).toLocaleDateString('cs-CZ')} · tréninků: {counts.get(u.id) ?? 0}</p>
+              <p className="text-sm text-muted">{u.display_name ? `${u.display_name} – ` : ''}registrace {new Date(u.created_at).toLocaleDateString('cs-CZ')} – tréninků: {counts.get(u.id) ?? 0}</p>
             </div>
             {u.id !== profile.id && (
               <ConfirmButton action={deleteUserAction.bind(null, u.id)} message={`Opravdu smazat uživatele ${u.email} včetně všech jeho tréninků? Nelze to vrátit.`} className="text-sm text-danger underline">Smazat</ConfirmButton>

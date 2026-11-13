@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/auth'
 import { btnCls, btn2Cls, inputCls } from '@/components/ui'
 
-export const metadata = { title: 'Historie · EFGEN' }
+export const metadata = { title: 'Historie – EFGEN' }
 
 const PAGE = 20
 type Row = { id: string; title: string; workout_date: string; format: string; subtype: string | null; group_name: string | null; total: string | null }
@@ -39,7 +39,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
             <Link href={`/app/historie/${w.id}`} className="block min-h-14 p-3 hover:bg-surface-2">
               <span className="font-medium">{w.title}</span>
               <span className="block text-sm text-muted">
-                {new Date(w.workout_date).toLocaleDateString('cs-CZ')} · {w.format}{w.subtype ? ` ${w.subtype}` : ''}{w.total ? ` · ${w.total} min` : ''}{w.group_name ? ` · ${w.group_name}` : ''}
+                {new Date(w.workout_date).toLocaleDateString('cs-CZ')} – {w.format}{w.subtype ? ` ${w.subtype}` : ''}{w.total ? ` – ${w.total} min` : ''}{w.group_name ? ` – ${w.group_name}` : ''}
               </span>
             </Link>
           </li>

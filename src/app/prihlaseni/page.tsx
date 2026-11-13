@@ -2,7 +2,7 @@ import { Alert } from '@/components/ui'
 import { AuthLayout } from '@/components/auth-layout'
 import { LoginForm } from '@/components/auth-forms'
 
-export const metadata = { title: 'Přihlášení · EFGEN' }
+export const metadata = { title: 'Přihlášení – EFGEN' }
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ next?: string; chyba?: string }> }) {
   const { next, chyba } = await searchParams

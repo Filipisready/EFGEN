@@ -9,7 +9,7 @@ import { ConfirmButton } from '@/components/confirm-button'
 import { btn2Cls } from '@/components/ui'
 import type { GeneratedWorkout } from '@/lib/generator/types'
 
-export const metadata = { title: 'Uložený trénink · EFGEN' }
+export const metadata = { title: 'Uložený trénink – EFGEN' }
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params

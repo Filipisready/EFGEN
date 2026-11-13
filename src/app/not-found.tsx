@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { btnCls } from '@/components/ui'
 
-export const metadata = { title: 'Stránka nenalezena · EFGEN' }
+export const metadata = { title: 'Stránka nenalezena – EFGEN' }
 
 export default function NotFound() {
   return (
