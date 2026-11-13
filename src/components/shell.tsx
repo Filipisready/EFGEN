@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { logout } from '@/lib/auth-actions'
 import type { Profile } from '@/lib/auth'
 import { Logo } from '@/components/logo'
+import { CoffeeLink } from '@/components/coffee-link'
 import { BottomNav, TopNav, type NavItem } from '@/components/app-nav'
 
 export function Shell({ profile, children }: { profile: Profile; children: ReactNode }) {
@@ -24,6 +25,7 @@ export function Shell({ profile, children }: { profile: Profile; children: React
           <Logo href="/app" size={30} />
           <TopNav items={isAdmin ? [...main, ...admin] : main} />
           <div className="ml-auto flex items-center gap-1">
+            <CoffeeLink />
             <Link href="/app/profil" className="hidden rounded-lg px-3 py-2 text-sm text-muted hover:bg-surface-2 hover:text-ink sm:block">{profile.display_name || profile.email}</Link>
             <form action={logout}><button className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-surface-2">Odhlásit</button></form>
           </div>
