@@ -7,7 +7,7 @@ import { ExportBar } from '@/components/export-bar'
 import { SaveBar } from '@/components/save-bar'
 import { Alert, Field, btnCls, btn2Cls, inputCls } from '@/components/ui'
 import { Chip, ChipGroup, Section, Segmented, Stepper } from '@/components/controls'
-import { MUSCLE_GROUPS } from '@/lib/constants'
+import { MUSCLE_GROUPS, expandMuscle } from '@/lib/constants'
 
 const KS = ['Kardio', 'Spíše kardio', 'Vyváženě', 'Spíše síla', 'Síla']
 const STORE = 'efgen.generator.v1'
@@ -151,20 +151,36 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
           <div className="space-y-3">
             <p className="text-sm font-medium">Svalové partie <span className="font-normal text-muted">(nevybráno = všechny)</span></p>
             {MUSCLE_GROUPS.map((g) => {
-              const all = g.muscles.every((m) => muscles.includes(m))
+              const members = g.muscles.flatMap((m) => expandMuscle(m))
+              const all = members.every((m) => muscles.includes(m))
+              const chipOn = (m: string) => expandMuscle(m).every((x) => muscles.includes(x))
+              const flip = (m: string) => {
+                const parts = expandMuscle(m)
+                setRestored(false)
+                setMuscles(chipOn(m) ? muscles.filter((x) => !parts.includes(x)) : [...new Set([...muscles, ...parts])])
+              }
               return (
                 <div key={g.label} className="space-y-1.5">
                   <div className="flex items-center justify-between text-sm text-muted">
                     <span>{g.label}</span>
                     {g.muscles.length > 1 && (
-                      <button type="button" className="underline" onClick={() => setMuscles(all ? muscles.filter((m) => !(g.muscles as readonly string[]).includes(m)) : [...new Set([...muscles, ...g.muscles])])}>
+                      <button type="button" className="underline" onClick={() => setMuscles(all ? muscles.filter((m) => !members.includes(m)) : [...new Set([...muscles, ...members])])}>
                         {all ? 'zrušit výběr' : 'vybrat vše'}
                       </button>
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {g.muscles.map((m) => <Chip key={m} checked={muscles.includes(m)} onChange={() => toggle(muscles, setMuscles, m)}>{m}</Chip>)}
+                    {g.muscles.map((m) => <Chip key={m} checked={chipOn(m)} onChange={() => flip(m)}>{m}</Chip>)}
                   </div>
+                  {g.muscles.includes('záda' as never) && (
+                    <details className="text-sm" open={['horní záda', 'spodní záda'].some((x) => muscles.includes(x)) && !chipOn('záda')}>
+                      <summary className="cursor-pointer text-muted">rozlišit horní a spodní záda</summary>
+                      <div className="mt-1.5 flex flex-wrap gap-2">
+                        <Chip checked={muscles.includes('horní záda')} onChange={() => toggle(muscles, setMuscles, 'horní záda')}>horní záda (lopatky)</Chip>
+                        <Chip checked={muscles.includes('spodní záda')} onChange={() => toggle(muscles, setMuscles, 'spodní záda')}>spodní záda (bedra)</Chip>
+                      </div>
+                    </details>
+                  )}
                 </div>
               )
             })}

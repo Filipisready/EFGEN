@@ -1,12 +1,22 @@
-/** Svalové partie podle oblastí těla. „Celé tělo“ není cílitelná partie (jen vlastnost cviku). */
+/**
+ * Svalové partie podle oblastí těla (pro výběr ve formuláři).
+ * „Záda“ jsou složená volba: zahrnuje horní i spodní záda, pro ty, kdo je rozlišovat nechtějí.
+ * „Celé tělo“ není cílitelná partie (jen vlastnost cviku).
+ */
+export const MUSCLE_COMPOSITES: Record<string, readonly string[]> = { záda: ['horní záda', 'spodní záda'] }
 export const MUSCLE_GROUPS = [
-  { label: 'Horní tělo', muscles: ['hrudník', 'horní záda', 'ramena', 'biceps', 'triceps'] },
-  { label: 'Střed těla', muscles: ['břicho', 'šikmé břicho', 'spodní záda'] },
+  { label: 'Horní tělo', muscles: ['hrudník', 'záda', 'ramena', 'biceps', 'triceps'] },
+  { label: 'Střed těla', muscles: ['břicho', 'šikmé břicho'] },
   { label: 'Dolní tělo', muscles: ['hýždě', 'přední stehna', 'zadní stehna', 'lýtka'] },
 ] as const
-export const TARGET_MUSCLES = MUSCLE_GROUPS.flatMap((g) => g.muscles) as readonly string[]
-export const MUSCLES = [...MUSCLE_GROUPS.flatMap((g) => g.muscles), 'celé tělo'] as unknown as readonly [
-  'hrudník', 'horní záda', 'ramena', 'biceps', 'triceps', 'břicho', 'šikmé břicho', 'spodní záda', 'hýždě', 'přední stehna', 'zadní stehna', 'lýtka', 'celé tělo',
+/** Rozbalí složenou volbu (např. „záda“) na skutečné partie cviků. */
+export const expandMuscle = (m: string): readonly string[] => MUSCLE_COMPOSITES[m] ?? [m]
+export const TARGET_MUSCLES: readonly string[] = [
+  'hrudník', 'horní záda', 'spodní záda', 'ramena', 'biceps', 'triceps', 'břicho', 'šikmé břicho', 'hýždě', 'přední stehna', 'zadní stehna', 'lýtka',
+]
+/** Partie, které může mít cvik (primární). */
+export const MUSCLES = [...TARGET_MUSCLES, 'celé tělo'] as unknown as readonly [
+  'hrudník', 'horní záda', 'spodní záda', 'ramena', 'biceps', 'triceps', 'břicho', 'šikmé břicho', 'hýždě', 'přední stehna', 'zadní stehna', 'lýtka', 'celé tělo',
 ]
 export const LEVELS = ['začátečník', 'pokročilý', 'expert'] as const
 export const ENVIRONMENTS = ['uvnitř', 'venku', 'obojí'] as const
