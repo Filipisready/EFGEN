@@ -43,3 +43,12 @@ export type Exercise = {
   video_url: string | null
   active: boolean
 }
+
+/** Skupiny pomůcek pro přehlednější výběr ve formuláři. Nově přidaná pomůcka bez zařazení spadne do skupiny „Další“. */
+export const EQUIPMENT_GROUPS: { label: string; names: readonly string[] }[] = [
+  { label: 'Činky a osy', names: ['činky', 'kettlebell', 'osa', 'osa v rohu', 'šestihranná osa', 'kotouče', 'stojan', 'lavice'] },
+  { label: 'Závěsy a gymnastika', names: ['TRX', 'kruhy', 'hrazda', 'bradla', 'šplhací lano'] },
+  { label: 'Bedny a stabilita', names: ['bedna', 'step', 'bosu', 'fitness míč'] },
+  { label: 'Malé pomůcky', names: ['odporová guma', 'klouzáky', 'válec na protažení', 'kolečko na břicho', 'švihadlo', 'medicinbal', 'sandbag', 'zátěžová vesta', 'boxovací pytel', 'lano'] },
+  { label: 'Kardio a rychlost', names: ['row', 'SkiErg', 'bike', 'echo bike', 'sáně', 'koordinační žebřík', 'kužely'] },
+]

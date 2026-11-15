@@ -7,7 +7,7 @@ import { ExportBar } from '@/components/export-bar'
 import { SaveBar } from '@/components/save-bar'
 import { Alert, Field, btnCls, btn2Cls, inputCls } from '@/components/ui'
 import { Chip, ChipGroup, Section, Segmented, Stepper } from '@/components/controls'
-import { MUSCLE_GROUPS, expandMuscle } from '@/lib/constants'
+import { EQUIPMENT_GROUPS, MUSCLE_GROUPS, expandMuscle } from '@/lib/constants'
 
 const KS = ['Kardio', 'Spíše kardio', 'Vyváženě', 'Spíše síla', 'Síla']
 const STORE = 'efgen.generator.v1'
@@ -195,9 +195,24 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
         </Section>
 
         <Section n={4} title="Vybavení">
-          <ChipGroup label="Dostupné pomůcky" hint="Vlastní váha je vždy k dispozici.">
-            {visibleEq.map((o) => <Chip key={o.name} checked={eq.includes(o.name)} onChange={() => toggle(eq, setEq, o.name)}>{eqLabel(o)}</Chip>)}
-          </ChipGroup>
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm font-medium">Dostupné pomůcky</p>
+              <p className="text-sm text-muted">Vlastní váha je vždy k dispozici.</p>
+            </div>
+            {[...EQUIPMENT_GROUPS, { label: 'Další', names: visibleEq.map((o) => o.name).filter((n) => !EQUIPMENT_GROUPS.some((g) => g.names.includes(n))) }].map((g) => {
+              const items = visibleEq.filter((o) => g.names.includes(o.name))
+              if (!items.length) return null
+              return (
+                <div key={g.label} className="space-y-1.5">
+                  <p className="text-sm text-muted">{g.label}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {items.map((o) => <Chip key={o.name} checked={eq.includes(o.name)} onChange={() => toggle(eq, setEq, o.name)}>{eqLabel(o)}</Chip>)}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
           {restored && (
             <p className="text-sm text-muted">Předvyplněno podle posledního tréninku.{' '}
               <button type="button" className="underline" onClick={() => { setEq(format === 'TRX' ? ['TRX'] : []); setRestored(false) }}>Vymazat výběr</button>
