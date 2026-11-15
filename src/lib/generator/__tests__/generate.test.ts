@@ -47,7 +47,7 @@ test('tvrdá pravidla na 300 náhodných zadání', () => {
     if (format === 'TRX' && !eq.includes('TRX')) eq.push('TRX')
     const input: GeneratorInput = {
       level: pick<Level>(['začátečník', 'pokročilý', 'expert']), environment: pick(['uvnitř', 'venku'] as const),
-      muscles: ['hrudník', 'záda', 'ramena', 'biceps', 'triceps', 'břicho', 'šikmé břicho', 'hýždě', 'přední stehna', 'zadní stehna', 'lýtka'].filter(() => rng() < 0.25),
+      muscles: ['hrudník', 'horní záda', 'spodní záda', 'ramena', 'biceps', 'triceps', 'břicho', 'šikmé břicho', 'hýždě', 'přední stehna', 'zadní stehna', 'lýtka'].filter(() => rng() < 0.25),
       equipment: eq, format, subtype: format === 'CrossFit' ? pick(['AMRAP', 'EMOM', 'For Time'] as const) : undefined,
       warmupMin: pick([0, 3, 5, 8]), mainMin: pick([8, 12, 16, 20, 30]), cooldownMin: pick([0, 3, 5]),
       cardioStrength: 1 + Math.floor(rng() * 5), seed: i + 1000,
@@ -96,10 +96,10 @@ test('různé seedy dávají různé sestavy', () => {
 })
 
 test('vybrané partie mají přednost', () => {
-  const r = gen({ muscles: ['záda'], format: 'CrossFit', subtype: 'AMRAP', mainMin: 16, seed: 7 })
+  const r = gen({ muscles: ['horní záda', 'spodní záda'], format: 'CrossFit', subtype: 'AMRAP', mainMin: 16, seed: 7 })
   assert.ok(r.ok)
   const main = r.workout.blocks.find((b) => b.key === 'hlavní')!.exercises
-  assert.ok(main.filter((e) => e.muscle === 'záda').length >= 2)
+  assert.ok(main.filter((e) => ['horní záda', 'spodní záda'].includes(e.muscle)).length >= 2)
 })
 
 test('CrossFit: kombinace AMRAP 20 + EMOM 10 jako dvě části bez opakování cviků', () => {
