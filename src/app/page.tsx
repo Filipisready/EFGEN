@@ -14,7 +14,7 @@ export default async function Home() {
     <main id="obsah" className="mx-auto w-full max-w-5xl px-4 pb-8 pt-6 sm:pt-14">
       <section className="grid items-center gap-10 md:grid-cols-[1.1fr_0.9fr]">
         <div className="space-y-6">
-          <p className="inline-flex rounded-full bg-accent-soft px-3 py-1 text-sm font-semibold">Pro trenéry skupinových lekcí</p>
+          <p className="inline-flex rounded-full bg-accent-soft px-3 py-1 text-sm font-semibold">Od trenéra pro trenéra</p>
           <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">Skupinový trénink na míru. Za pár sekund.</h1>
           <p className="max-w-xl text-lg text-muted">Zadejte úroveň, vybavení a časy. EFGEN sestaví rozcvičku, hlavní část i závěrečný strečink a vy si ho doladíte.</p>
           <div className="flex flex-wrap gap-3">
