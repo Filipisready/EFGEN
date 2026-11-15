@@ -116,7 +116,7 @@ test('CrossFit: kombinace AMRAP 20 + EMOM 10 jako dvě části bez opakování c
   assert.match(r.workout.title, /AMRAP \+ EMOM/)
 })
 
-test('CrossFit: pomůcky se neuvádějí, pokud nejsou zvolené (kruhy, sáně, GHD)', () => {
+test('CrossFit: pomůcky se neuvádějí, pokud nejsou zvolené (kruhy, sáně)', () => {
   const r = gen({ format: 'CrossFit', segments: [{ type: 'For Time', minutes: 12 }], equipment: ['činky'], level: 'pokročilý' })
   assert.ok(r.ok)
   const used = r.workout.blocks.flatMap((b) => b.exercises.flatMap((e) => e.equipment))
