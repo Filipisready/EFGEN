@@ -1,5 +1,6 @@
 import type { Exercise } from '@/lib/constants'
 import { buildPools, poolFor } from './pools'
+import { familyKey } from './family'
 import type { BlockKey, WorkoutContext } from './types'
 
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
@@ -8,7 +9,10 @@ type Scope = { ctx: WorkoutContext; key: BlockKey; usedIds: string[]; blockIds: 
 
 /** Kandidáti pro daný blok: stejná tvrdá pravidla jako generátor, bez cviků, které už v tréninku jsou. */
 function candidates(lib: Exercise[], { ctx, key, usedIds, blockIds }: Scope, ignoreId?: string): Exercise[] {
-  const pool = poolFor(buildPools(lib, ctx), key).filter((e) => !usedIds.includes(e.id))
+  const byId = new Map(lib.map((e) => [e.id, e]))
+  // Varianty téhož cviku (jiná pomůcka) v tréninku už jsou, jen cvik, který se nahrazuje, svou rodinu uvolní.
+  const taken = new Set(usedIds.filter((id) => id !== ignoreId).map((id) => byId.get(id)).filter(Boolean).map((e) => familyKey(e!)))
+  const pool = poolFor(buildPools(lib, ctx), key).filter((e) => !usedIds.includes(e.id) && !taken.has(familyKey(e)))
   if (ctx.format === 'TRX' && key === 'hlavní') {
     // Pravidlo 1: v TRX je max. 20 % cviků bez pomůcky TRX.
     const byId = new Map(lib.map((e) => [e.id, e]))

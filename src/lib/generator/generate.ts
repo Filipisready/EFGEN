@@ -3,6 +3,7 @@ import { mulberry32, weightedPick, type Rng } from './rng'
 import { cviku, fmtSec, mainCount, mainStructure, resolveParams } from './templates'
 import type { BlockKey, GenerateResult, GeneratorInput, WorkoutBlock } from './types'
 import { buildPools, context, toWorkoutExercise, type Step } from './pools'
+import { familyKey } from './family'
 import { recompute } from './recompute'
 
 const DAY = (d = new Date()) => d.toISOString().slice(0, 10)
@@ -35,14 +36,19 @@ function pickSequence(pool: Exercise[], n: number, rng: Rng, opts: {
   muscles?: string[] // preferované partie
   circuit?: boolean // kruhový trénink: stanice střídají partie
   groupLevel?: string // cviky vlastní úrovně skupiny mají přednost před o stupeň nižšími
+  avoidFamilies?: Set<string> // rodiny cviků, které už v tréninku jsou (jiná pomůcka = tentýž cvik)
   maxFromGroupB?: { isB: (e: Exercise) => boolean; max: number }
 }): Exercise[] {
   const chosen: Exercise[] = []
   const covered = new Set<string>()
   let usedB = 0
   const preferred = opts.muscles?.length ? new Set(opts.muscles) : null
+  const families = new Set(opts.avoidFamilies ?? [])
   while (chosen.length < n) {
-    const cands = pool.filter((e) => !chosen.includes(e) && !(opts.maxFromGroupB && opts.maxFromGroupB.isB(e) && usedB >= opts.maxFromGroupB.max))
+    const open = pool.filter((e) => !chosen.includes(e) && !(opts.maxFromGroupB && opts.maxFromGroupB.isB(e) && usedB >= opts.maxFromGroupB.max))
+    // Tentýž cvik s jinou pomůckou se v tréninku neopakuje; jen když by nezbylo nic jiného, připustí se.
+    const fresh = open.filter((e) => !families.has(familyKey(e)))
+    const cands = fresh.length ? fresh : open
     if (!cands.length) break
     const prev = chosen[chosen.length - 1]
     const allCovered = !preferred || [...preferred].every((m) => covered.has(m))
@@ -59,6 +65,7 @@ function pickSequence(pool: Exercise[], n: number, rng: Rng, opts: {
     })
     const pick = weightedPick(cands, weights, rng)
     chosen.push(pick)
+    families.add(familyKey(pick))
     covered.add(pick.muscle)
     if (opts.maxFromGroupB?.isB(pick)) usedB++
   }
@@ -113,7 +120,7 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
       const n = mainCount(input.format, sg.type, sg.minutes, params)
       const pool = mainPool.filter((e) => !allMain.includes(e))
       const ex = pickSequence(pool, n, rng, {
-        targetK: input.cardioStrength, muscles: input.muscles, groupLevel: input.level,
+        targetK: input.cardioStrength, muscles: input.muscles, groupLevel: input.level, avoidFamilies: new Set(allMain.map(familyKey)),
       })
       allMain.push(...ex)
       const label = sg.type ? `${sg.type} ${sg.minutes} min` : undefined
@@ -144,7 +151,7 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
   if (input.warmupMin > 0) {
     const pool = pools.warm.filter((e) => !mainEx.includes(e))
     const k = input.warmupMin
-    const sel = pickSequence(pool, k, rng, { muscles: input.muscles.length ? input.muscles : mainMuscles })
+    const sel = pickSequence(pool, k, rng, { muscles: input.muscles.length ? input.muscles : mainMuscles, avoidFamilies: new Set(mainEx.map(familyKey)) })
     if (sel.length < k) warnings.push(`Rozcvička: vhodných cviků je jen ${sel.length} z ${k}.`)
     const ordered = [...sel.filter((e) => e.muscle === 'celé tělo'), ...sel.filter((e) => e.muscle !== 'celé tělo')]
     blocks.push(block('rozcvička', input.warmupMin, ordered))
@@ -154,7 +161,8 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
     const usedWarm = new Set(blocks.flatMap((b) => b.exercises.map((x) => x.id)))
     const pool = pools.cool.filter((e) => !mainEx.includes(e) && !usedWarm.has(e.id))
     const k = input.cooldownMin
-    const sel = pickSequence(pool, k, rng, { muscles: mainMuscles })
+    const used = new Set([...mainEx, ...blocks.flatMap((b) => b.exercises.map((x) => lib.find((l) => l.id === x.id)!).filter(Boolean))].map(familyKey))
+    const sel = pickSequence(pool, k, rng, { muscles: mainMuscles, avoidFamilies: used })
     if (sel.length < k) warnings.push(`Zklidnění: vhodných cviků je jen ${sel.length} z ${k}.`)
     blocks.push(block('zklidnění', input.cooldownMin, sel))
   }
