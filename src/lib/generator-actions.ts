@@ -20,16 +20,18 @@ const schema = z.object({
   subtype: z.enum(['AMRAP', 'EMOM', 'For Time']).optional(),
   segments: z.array(z.object({ type: z.enum(['AMRAP', 'EMOM', 'For Time']), minutes: num(1, 60) })).min(1).max(4).optional(),
   warmupMin: num(0, 30),
-  mainMin: num(1, 90),
+  mainMin: num(1, 300),
   cooldownMin: num(0, 30),
   cardioStrength: num(1, 5),
   groupSize: optNum(1, 500),
   groupName: z.string().trim().max(80).optional(),
   title: z.string().trim().max(100).optional(),
   params: z.object({
-    workSec: optNum(5, 300), restSec: optNum(0, 300), rounds: optNum(1, 20), pauseSec: optNum(0, 600),
+    workSec: optNum(5, 300), restSec: optNum(0, 300), rounds: optNum(1, 20), pauseSec: optNum(0, 900),
+    blocks: optNum(1, 8), perBlock: optNum(0, 30), mode: z.enum(['cas', 'opak']).optional(),
+    reps: optNum(1, 100), restBetweenSec: optNum(0, 600), pauseBlocksSec: optNum(0, 1200),
   }).optional(),
-})
+}).refine((v) => !v.params || (v.params.blocks ?? 1) * (v.params.perBlock ?? 0) <= 40, { message: 'Celkem nejvýše 40 cviků v hlavní části.' })
 
 export async function generateAction(raw: unknown): Promise<GenerateResult> {
   await requireUser()

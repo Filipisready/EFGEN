@@ -5,12 +5,24 @@ export type Format = 'Kruhový trénink' | 'TRX' | 'CrossFit'
 export type Subtype = 'AMRAP' | 'EMOM' | 'For Time'
 export type BlockKey = 'rozcvička' | 'hlavní' | 'zklidnění'
 
-/** Parametry šablony formátu (FR-36). Nevyplněné hodnoty se doplní výchozími. */
+export type Mode = 'cas' | 'opak'
+
+/**
+ * Parametry šablony hlavní části (FR-36). Nevyplněné hodnoty se doplní výchozími.
+ * Hlavní část kruhového tréninku a TRX se skládá z bloků (A, B, C…), každý blok má stejný počet cviků
+ * a opakuje se v sériích. Klasický okruh je jeden blok.
+ */
 export type TemplateParams = {
   workSec?: number // kruhový trénink, TRX: práce na stanici
   restSec?: number // kruhový trénink, TRX: přechod mezi stanicemi
   rounds?: number // kruhový trénink, TRX: kol okruhu; CrossFit For Time: kol
-  pauseSec?: number // kruhový trénink, TRX: pauza mezi koly
+  pauseSec?: number // kruhový trénink, TRX: pauza mezi koly (sériemi)
+  blocks?: number // počet bloků (1 = klasický okruh)
+  perBlock?: number // cviků v bloku, 0 = dopočítat z délky hlavní části
+  mode?: Mode // 'cas' = práce/přechod, 'opak' = počet opakování
+  reps?: number // opakování na cvik (mode 'opak')
+  restBetweenSec?: number // pauza mezi cviky (mode 'opak')
+  pauseBlocksSec?: number // pauza mezi bloky (např. na pití)
 }
 
 /** Zadání, ze kterého trénink vznikl. Potřebné pro výměnu a přidání cviků po vygenerování. */

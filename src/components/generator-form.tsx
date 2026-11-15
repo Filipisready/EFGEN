@@ -8,6 +8,7 @@ import { SaveBar } from '@/components/save-bar'
 import { Alert, Field, btnCls, btn2Cls, inputCls } from '@/components/ui'
 import { Chip, ChipGroup, Section, Segmented, Stepper } from '@/components/controls'
 import { EQUIPMENT_GROUPS, MUSCLE_GROUPS, expandMuscle } from '@/lib/constants'
+import { DEFAULT_LAYOUT, MainBuilder, layoutMinutes, layoutParams, type Layout } from '@/components/main-builder'
 
 const KS = ['Kardio', 'Spíše kardio', 'Vyváženě', 'Spíše síla', 'Síla']
 const STORE = 'efgen.generator.v1'
@@ -23,7 +24,7 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
   const [muscles, setMuscles] = useState<string[]>([])
   const [eq, setEq] = useState<string[]>([])
   const [warmup, setWarmup] = useState('5')
-  const [main, setMain] = useState('20')
+  const [layout, setLayout] = useState<Layout>(DEFAULT_LAYOUT)
   const [cooldown, setCooldown] = useState('5')
   const [ks, setKs] = useState(3)
   const [groupSize, setGroupSize] = useState('')
@@ -56,7 +57,7 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
 
   const toggle = (arr: string[], set: (v: string[]) => void, v: string) => { setRestored(false); set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]) }
   const cf = format === 'CrossFit'
-  const mainTotal = cf ? segs.reduce((a, x) => a + (Number(x.minutes) || 0), 0) : Number(main) || 0
+  const mainTotal = cf ? segs.reduce((a, x) => a + (Number(x.minutes) || 0), 0) : layoutMinutes(format, layout)
   const total = (Number(warmup) || 0) + mainTotal + (Number(cooldown) || 0)
   const visibleEq = equipment.filter((o) => o.formats.includes(format))
   const eqLabel = (o: EquipmentOption) => (cf ? o.cf_label ?? o.name : o.name)
@@ -72,12 +73,12 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
   function submit() {
     if (dirty && !confirm('Ruční úpravy tréninku se přegenerováním ztratí. Pokračovat?')) return
     try { localStorage.setItem(STORE, JSON.stringify({ eq, environment, level, ks })) } catch { /* ignorujeme */ }
-    const p = Object.fromEntries(Object.entries(params).filter(([, v]) => v !== '').map(([k, v]) => [k, Number(v)]))
+    const p = cf ? Object.fromEntries(Object.entries(params).filter(([, v]) => v !== '').map(([k, v]) => [k, Number(v)])) : layoutParams(layout)
     start(async () => {
       const r = await generateAction({
         level, muscles, equipment: eq, environment, format,
         segments: cf ? segs.map((x) => ({ type: x.type, minutes: Number(x.minutes) || 0 })) : undefined,
-        warmupMin: Number(warmup) || 0, mainMin: cf ? mainTotal : Number(main) || 0, cooldownMin: Number(cooldown) || 0,
+        warmupMin: Number(warmup) || 0, mainMin: mainTotal, cooldownMin: Number(cooldown) || 0,
         cardioStrength: ks, groupSize: groupSize || undefined, groupName: groupName || undefined, title: title || undefined,
         params: Object.keys(p).length ? p : undefined,
       })
@@ -127,21 +128,20 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
               </fieldset>
             </div>
           ) : (
-            <div className="grid gap-3 sm:grid-cols-3">
-              <Stepper label="Rozcvička" value={warmup} onChange={setWarmup} max={30} />
-              <Stepper label="Hlavní část" value={main} onChange={setMain} min={1} max={90} />
-              <Stepper label="Zklidnění" value={cooldown} onChange={setCooldown} max={30} />
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <Stepper label="Rozcvička" value={warmup} onChange={setWarmup} max={30} />
+                <Stepper label="Zklidnění" value={cooldown} onChange={setCooldown} max={30} />
+              </div>
+              <MainBuilder format={format as 'Kruhový trénink' | 'TRX'} layout={layout} onChange={setLayout} />
             </div>
           )}
           <p className="tnum text-sm text-muted">Celkem <b className="text-ink">{total} min</b>. Nula = blok vynechat.</p>
-          {(format !== 'CrossFit' || segs.some((x) => x.type === 'For Time')) && (
+          {cf && segs.some((x) => x.type === 'For Time') && (
             <details className="rounded-xl border border-line p-3">
-              <summary className="cursor-pointer text-sm font-medium">Upřesnit časy formátu</summary>
+              <summary className="cursor-pointer text-sm font-medium">Upřesnit For Time</summary>
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {format !== 'CrossFit' && par('workSec', 'Práce (s)', '40')}
-                {format !== 'CrossFit' && par('restSec', 'Přechod (s)', '20')}
                 {par('rounds', 'Kol', '3')}
-                {format !== 'CrossFit' && par('pauseSec', 'Pauza mezi koly (s)', '60')}
               </div>
             </details>
           )}

@@ -1,4 +1,5 @@
 import { recompute } from './recompute'
+import { resolveParams } from './templates'
 import type { GeneratedWorkout, TemplateParams, WorkoutExercise } from './types'
 
 /** Čisté funkce pro ruční úpravy tréninku (PRD FR-33 až FR-36). Každá vrací nový, přepočtený trénink. */
@@ -32,7 +33,9 @@ export const setBlockMinutes = (w: GeneratedWorkout, bi: number, minutes: number
   recompute({ ...w, blocks: w.blocks.map((b, i) => (i === bi && minutes >= 0 ? { ...b, minutes } : b)) })
 
 export const setParams = (w: GeneratedWorkout, p: TemplateParams) => {
-  const params = { ...w.params }
-  for (const [k, v] of Object.entries(p)) if (typeof v === 'number' && v >= 0) (params as Record<string, number>)[k] = v
-  return recompute({ ...w, params })
+  const params = resolveParams(w.format, { ...w.params }) as Record<string, unknown>
+  for (const [k, v] of Object.entries(p)) {
+    if (k === 'mode' ? v === 'cas' || v === 'opak' : typeof v === 'number' && v >= 0) params[k] = v
+  }
+  return recompute({ ...w, params: params as GeneratedWorkout['params'] })
 }

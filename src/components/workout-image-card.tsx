@@ -1,5 +1,5 @@
 import type { GeneratedWorkout } from '@/lib/generator/types'
-import { altLabel } from '@/lib/generator/display'
+import { altLabel, blockHeading } from '@/lib/generator/display'
 
 /** Značka EFGEN s pevnými barvami (export je vždy ve světlém provedení). */
 function Mark({ size }: { size: number }) {
@@ -25,7 +25,7 @@ export function WorkoutImageCard({ w }: { w: GeneratedWorkout }) {
       <div style={{ color: '#555', fontSize: 16, marginTop: 4 }}>{meta}</div>
       {w.blocks.map((b, bi) => (
         <div key={bi} style={{ marginTop: 22 }}>
-          <div style={{ fontSize: 22, fontWeight: 700 }}>{b.label ? `Hlavní část: ${b.label}` : `${NAMES[b.key]} – ${b.minutes} min`}</div>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>{blockHeading(b)}</div>
           <div style={{ color: '#555', fontSize: 14, marginBottom: 8 }}>{b.structure}</div>
           {b.exercises.map((e, i) => (
             <div key={e.id} style={{ display: 'flex', gap: 12, marginBottom: 10 }}>

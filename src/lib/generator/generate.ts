@@ -1,11 +1,12 @@
 import type { Exercise } from '@/lib/constants'
 import { mulberry32, weightedPick, type Rng } from './rng'
-import { mainCount, mainStructure, resolveParams, totalMainSeconds, fmtSec, cviku } from './templates'
+import { cviku, fmtSec, mainCount, mainStructure, resolveParams } from './templates'
 import type { BlockKey, GenerateResult, GeneratorInput, WorkoutBlock } from './types'
 import { buildPools, context, toWorkoutExercise, type Step } from './pools'
 import { recompute } from './recompute'
 
 const DAY = (d = new Date()) => d.toISOString().slice(0, 10)
+const LETTERS = 'ABCDEFGHIJKL'
 
 /** Měkká pravidla pořadí (PRD 6.5, pravidla 7 až 11). Vrací násobek váhy kandidáta. */
 /** Oblast těla pro střídání stanic v kruhovém tréninku. */
@@ -70,7 +71,7 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
   const params = resolveParams(input.format, input.params)
   const avail = new Set(input.equipment)
 
-  if (input.format !== 'CrossFit' && input.mainMin < 1) return { ok: false, error: 'Zadejte délku hlavní části (alespoň 1 minutu).' }
+  if (input.format !== 'CrossFit' && params.perBlock <= 0 && input.mainMin < 1) return { ok: false, error: 'Zadejte délku hlavní části (alespoň 1 minutu).' }
   if (input.format === 'TRX' && !avail.has('TRX')) return { ok: false, error: 'Pro formát TRX zaškrtněte mezi pomůckami TRX.' }
 
   const pools = buildPools(lib, input)
@@ -80,7 +81,7 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
   const segments = input.format === 'CrossFit'
     ? (input.segments?.length ? input.segments : [{ type: input.subtype ?? 'AMRAP', minutes: input.mainMin }])
     : [{ type: undefined, minutes: input.mainMin }]
-  if (segments.some((sg) => !(sg.minutes >= 1))) return { ok: false, error: 'Zadejte délku hlavní části (alespoň 1 minutu).' }
+  if (input.format === 'CrossFit' && segments.some((sg) => !(sg.minutes >= 1))) return { ok: false, error: 'Zadejte délku hlavní části (alespoň 1 minutu).' }
 
   const mainPool = pools.main
   const trx = input.format === 'TRX'
@@ -88,37 +89,51 @@ export function generateWorkout(lib: Exercise[], input: GeneratorInput): Generat
 
   const mainBlocks: WorkoutBlock[] = []
   const allMain: Exercise[] = []
-  for (const sg of segments) {
-    const n = mainCount(input.format, sg.type, sg.minutes, params)
-    const pool = mainPool.filter((e) => !allMain.includes(e))
-    const groupB = trx ? { isB: (e: Exercise) => !e.equipment.includes('TRX'), max: Math.floor(n * 0.2) } : undefined
-    const ex = pickSequence(pool, n, rng, {
+  if (input.format !== 'CrossFit') {
+    // Kruhový trénink a TRX: bloky A, B, C… o stejném počtu cviků, každý v sériích. Klasický okruh je jeden blok.
+    const perBlock = mainCount(input.format, undefined, input.mainMin, params)
+    const nBlocks = Math.max(1, params.blocks)
+    const total = perBlock * nBlocks
+    const groupB = trx ? { isB: (e: Exercise) => !e.equipment.includes('TRX'), max: Math.floor(total * 0.2) } : undefined
+    const ex = pickSequence(mainPool, total, rng, {
       targetK: input.cardioStrength, muscles: input.muscles, circuit: input.format === 'Kruhový trénink', maxFromGroupB: groupB, groupLevel: input.level,
     })
     allMain.push(...ex)
-    const label = sg.type ? `${sg.type} ${sg.minutes} min` : undefined
-    if (ex.length < n) {
-      warnings.push(`${label ? label + ': ' : ''}v knihovně je jen ${ex.length} vhodných cviků z doporučených ${n}. ${explain(input, diag)}`)
+    if (ex.length < total) warnings.push(`V knihovně je jen ${ex.length} vhodných cviků z požadovaných ${total}. ${explain(input, diag)}`)
+    for (let i = 0; i < nBlocks; i++) {
+      const part = ex.slice(i * perBlock, (i + 1) * perBlock)
+      if (!part.length) break
+      mainBlocks.push({
+        key: 'hlavní', minutes: 0, structure: '', label: nBlocks > 1 ? `Blok ${LETTERS[i]}` : undefined,
+        exercises: part.map((e) => toWorkoutExercise(e, false)),
+      })
     }
-    const sec = totalMainSeconds(input.format, sg.type, sg.minutes, ex.length || 1, params)
-    const blk: WorkoutBlock = {
-      key: 'hlavní', minutes: sg.minutes, label, type: sg.type,
-      structure: mainStructure(input.format, sg.type, sg.minutes, ex.length, params),
-      exercises: ex.map((e, i) => {
-        const w = toWorkoutExercise(e, input.format === 'CrossFit')
-        if (sg.type === 'EMOM') {
-          const mins: number[] = []
-          for (let m = 1; m <= sg.minutes; m++) if ((m - 1) % ex.length === i) mins.push(m)
-          w.note = `minuty ${mins.join(', ')}`
-        }
-        return w
-      }),
+  } else {
+    for (const sg of segments) {
+      const n = mainCount(input.format, sg.type, sg.minutes, params)
+      const pool = mainPool.filter((e) => !allMain.includes(e))
+      const ex = pickSequence(pool, n, rng, {
+        targetK: input.cardioStrength, muscles: input.muscles, groupLevel: input.level,
+      })
+      allMain.push(...ex)
+      const label = sg.type ? `${sg.type} ${sg.minutes} min` : undefined
+      if (ex.length < n) {
+        warnings.push(`${label ? label + ': ' : ''}v knihovně je jen ${ex.length} vhodných cviků z doporučených ${n}. ${explain(input, diag)}`)
+      }
+      mainBlocks.push({
+        key: 'hlavní', minutes: sg.minutes, label, type: sg.type,
+        structure: mainStructure(sg.type, sg.minutes, ex.length, params),
+        exercises: ex.map((e, i) => {
+          const w = toWorkoutExercise(e, true)
+          if (sg.type === 'EMOM') {
+            const mins: number[] = []
+            for (let m = 1; m <= sg.minutes; m++) if ((m - 1) % ex.length === i) mins.push(m)
+            w.note = `minuty ${mins.join(', ')}`
+          }
+          return w
+        }),
+      })
     }
-    if (Math.abs(sec - sg.minutes * 60) > 60 && input.format !== 'CrossFit') {
-      blk.minutes = Math.round((sec / 60) * 10) / 10
-      warnings.push(`Struktura formátu vychází na ${fmtSec(sec)} (zadáno ${sg.minutes} min), čas hlavní části jsme upravili.`)
-    }
-    mainBlocks.push(blk)
   }
   const mainEx = allMain
 

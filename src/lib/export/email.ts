@@ -1,5 +1,5 @@
 import type { GeneratedWorkout } from '@/lib/generator/types'
-import { altLabel } from '@/lib/generator/display'
+import { altLabel, blockHeading } from '@/lib/generator/display'
 
 const NAMES = { rozcvička: 'Rozcvička', hlavní: 'Hlavní část', zklidnění: 'Zklidnění' } as const
 /** Logo v e-mailu musí být obrázek na veřejné adrese (SVG většina e-mailových aplikací blokuje). */
@@ -28,7 +28,7 @@ export function buildEmail(w: GeneratedWorkout) {
         </td>
       </tr>`).join('')
     return `
-      <h2 style="font-size:18px;margin:22px 0 2px">${esc(b.label ? `Hlavní část: ${b.label}` : `${NAMES[b.key]} – ${b.minutes} min`)}</h2>
+      <h2 style="font-size:18px;margin:22px 0 2px">${esc(blockHeading(b))}</h2>
       <div style="color:#555;font-size:13px;margin-bottom:8px">${esc(b.structure)}</div>
       <table role="presentation" cellspacing="0" cellpadding="0" style="width:100%">${rows}</table>`
   }).join('')
@@ -49,7 +49,7 @@ export function buildEmail(w: GeneratedWorkout) {
   const text = [
     w.title, meta(w), '',
     ...w.blocks.flatMap((b) => [
-      b.label ? `Hlavní část: ${b.label}` : `${NAMES[b.key]} (${b.minutes} min)`, b.structure,
+      blockHeading(b), b.structure,
       ...b.exercises.map((e, i) => `${i + 1}. ${e.name}${altOf(w, e)}${e.valueText ? ' ' + e.valueText : ''}${e.note ? ' (' + e.note + ')' : ''}\n   ${e.description}${e.userNote ? '\n   Poznámka: ' + e.userNote : ''}`),
       '',
     ]),

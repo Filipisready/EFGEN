@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { Document, Font, Page, Path, Rect, StyleSheet, Svg, Text, View, renderToBuffer } from '@react-pdf/renderer'
 import type { GeneratedWorkout } from '@/lib/generator/types'
-import { altLabel } from '@/lib/generator/display'
+import { altLabel, blockHeading, blockSummary } from '@/lib/generator/display'
 
 const dir = path.join(process.cwd(), 'assets', 'fonts')
 let registered = false
@@ -58,7 +58,7 @@ const s = StyleSheet.create({
 export function WorkoutPdf({ w }: { w: GeneratedWorkout }) {
   const date = new Date(w.date).toLocaleDateString('cs-CZ')
   const meta = [date, `${w.format}${w.subtype ? ' ' + w.subtype : ''}`, `celkem ${w.totalMinutes} min`, w.groupName, w.groupSize ? `${w.groupSize} osob` : null].filter(Boolean).join(' – ')
-  const summary = w.blocks.map((b) => `${b.label ?? NAMES[b.key]}${b.label ? '' : ' ' + b.minutes + ' min'}`).join(' – ')
+  const summary = w.blocks.map(blockSummary).join(' – ')
   return (
     <Document title={w.title} author="EFGEN" creator="efgen.pro">
       <Page size="A4" style={s.page}>
@@ -91,7 +91,7 @@ export function WorkoutPdf({ w }: { w: GeneratedWorkout }) {
             <View key={bi} style={s.block}>
               {/* Nadpis bloku drží pohromadě s prvním cvikem, aby nezůstal osamocený na konci strany. */}
               <View wrap={false}>
-                <Text style={s.blockTitle}>{b.label ? `Hlavní část: ${b.label}` : `${NAMES[b.key]} – ${b.minutes} min`}</Text>
+                <Text style={s.blockTitle}>{blockHeading(b)}</Text>
                 <Text style={s.structure}>{b.structure}</Text>
                 {b.exercises[0] ? row(b.exercises[0], 0) : null}
               </View>

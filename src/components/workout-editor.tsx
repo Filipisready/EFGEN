@@ -2,7 +2,8 @@
 import { useState, useTransition } from 'react'
 import { searchExercisesAction, swapOptionsAction } from '@/lib/generator-actions'
 import { addExercise, moveExercise, removeExercise, replaceExercise, setBlockMinutes, setExerciseNote, setParams } from '@/lib/generator/edit'
-import { altLabel } from '@/lib/generator/display'
+import { resolveParams } from '@/lib/generator/templates'
+import { altLabel, blockSummary, blockTitle, showsMinutesChip } from '@/lib/generator/display'
 import type { GeneratedWorkout, WorkoutExercise } from '@/lib/generator/types'
 import { Badge, inputCls } from '@/components/ui'
 
@@ -41,11 +42,13 @@ export function WorkoutEditor({ workout: w, onChange }: { workout: GeneratedWork
   }
 
   const derived = w.format !== 'CrossFit'
-  const numField = (label: string, k: 'workSec' | 'restSec' | 'rounds' | 'pauseSec') => (
+  const pr = resolveParams(w.format, w.params)
+  const numField = (label: string, k: 'workSec' | 'restSec' | 'rounds' | 'pauseSec' | 'reps' | 'restBetweenSec' | 'pauseBlocksSec') => (
     <label className="space-y-1 text-sm"><span>{label}</span>
-      <input type="number" inputMode="numeric" min={0} value={w.params[k]} onChange={(e) => onChange(setParams(w, { [k]: Number(e.target.value) }))} className={inputCls} />
+      <input type="number" inputMode="numeric" min={0} value={pr[k]} onChange={(e) => onChange(setParams(w, { [k]: Number(e.target.value) }))} className={inputCls} />
     </label>
   )
+  const manyBlocks = w.blocks.filter((b) => b.key === 'hlavní').length > 1
 
   return (
     <article className="space-y-4">
@@ -59,7 +62,7 @@ export function WorkoutEditor({ workout: w, onChange }: { workout: GeneratedWork
           {w.groupName && <span className="text-muted">– {w.groupName}</span>}
           {w.groupSize && <span className="text-muted">– {w.groupSize} osob</span>}
         </div>
-        <p className="tnum text-sm text-muted">{w.blocks.map((b) => `${b.label ?? NAMES[b.key]}${b.label ? '' : ' ' + b.minutes + ' min'}`).join(' → ')}</p>
+        <p className="tnum text-sm text-muted">{w.blocks.map(blockSummary).join(' → ')}</p>
       </header>
 
       {w.warnings.map((m) => (
@@ -68,12 +71,22 @@ export function WorkoutEditor({ workout: w, onChange }: { workout: GeneratedWork
 
       {derived && (
         <details className="rounded-2xl border border-line bg-surface p-4">
-          <summary className="cursor-pointer text-sm font-semibold">Časy formátu</summary>
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {numField('Práce (s)', 'workSec')}
-            {numField('Přechod (s)', 'restSec')}
-            {numField('Kol', 'rounds')}
-            {numField('Pauza mezi koly (s)', 'pauseSec')}
+          <summary className="cursor-pointer text-sm font-semibold">Časy a série</summary>
+          <div className="mt-3 space-y-3">
+            <div className="inline-grid grid-cols-2 gap-1 rounded-xl bg-surface-2 p-1 text-sm">
+              {([['cas', 'Na čas'], ['opak', 'Na opakování']] as const).map(([v, t]) => (
+                <label key={v} className="flex min-h-10 cursor-pointer items-center justify-center rounded-lg px-3 font-medium has-[:checked]:bg-accent has-[:checked]:text-accent-ink">
+                  <input type="radio" name="mode" className="sr-only" checked={pr.mode === v} onChange={() => onChange(setParams(w, { mode: v }))} />{t}
+                </label>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {pr.mode === 'opak' ? <>{numField('Opakování', 'reps')}{numField('Pauza mezi cviky (s)', 'restBetweenSec')}</> : <>{numField('Práce (s)', 'workSec')}{numField('Přechod (s)', 'restSec')}</>}
+              {numField(pr.mode === 'opak' ? 'Sérií' : 'Kol', 'rounds')}
+              {numField(pr.mode === 'opak' ? 'Pauza mezi sériemi (s)' : 'Pauza mezi koly (s)', 'pauseSec')}
+              {manyBlocks && numField('Pauza mezi bloky (s)', 'pauseBlocksSec')}
+            </div>
+            <p className="text-sm text-muted">Počet bloků a cviků v bloku upravíte přidáním nebo odebráním cviků níže.</p>
           </div>
         </details>
       )}
@@ -82,11 +95,11 @@ export function WorkoutEditor({ workout: w, onChange }: { workout: GeneratedWork
         <section key={bi} className="space-y-4 rounded-2xl border border-line bg-surface p-4 sm:p-5">
           <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <h3 className="text-xl font-extrabold tracking-tight">{b.label ? `Hlavní část: ${b.label}` : NAMES[b.key]}</h3>
-              {!b.label && <span className="tnum rounded-full bg-surface-2 px-2.5 py-0.5 text-sm font-semibold">{b.minutes} min</span>}
+              <h3 className="text-xl font-extrabold tracking-tight">{blockTitle(b)}</h3>
+              {showsMinutesChip(b) && <span className="tnum rounded-full bg-surface-2 px-2.5 py-0.5 text-sm font-semibold">{b.minutes} min</span>}
               {!(b.key === 'hlavní' && derived) && (
                 <label className="ml-auto flex items-center gap-2 text-sm text-muted">Čas
-                  <input type="number" inputMode="numeric" min={0} max={90} value={b.minutes} aria-label={`Čas bloku ${b.label ?? NAMES[b.key]} v minutách`} onChange={(e) => onChange(setBlockMinutes(w, bi, Number(e.target.value)))}
+                  <input type="number" inputMode="numeric" min={0} max={90} value={b.minutes} aria-label={`Čas bloku ${blockTitle(b)} v minutách`} onChange={(e) => onChange(setBlockMinutes(w, bi, Number(e.target.value)))}
                     className="tnum w-16 rounded-lg border border-line-strong bg-surface px-2 py-1.5 text-center text-ink" />
                   min
                 </label>

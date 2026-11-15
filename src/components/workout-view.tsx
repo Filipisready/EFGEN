@@ -1,5 +1,5 @@
 import type { GeneratedWorkout } from '@/lib/generator/types'
-import { altLabel } from '@/lib/generator/display'
+import { altLabel, blockSummary, blockTitle, showsMinutesChip } from '@/lib/generator/display'
 
 const NAMES = { rozcvička: 'Rozcvička', hlavní: 'Hlavní část', zklidnění: 'Zklidnění' } as const
 
@@ -15,7 +15,7 @@ export function WorkoutView({ w }: { w: GeneratedWorkout }) {
           {w.groupSize && <> – {w.groupSize} osob</>}
         </p>
         <p className="text-sm text-muted">
-          {w.blocks.map((b) => `${b.label ?? NAMES[b.key]} ${b.label ? '' : b.minutes + ' min'}`.trim()).join(' – ')}
+          {w.blocks.map(blockSummary).join(' – ')}
         </p>
       </header>
       {w.warnings.map((m) => (
@@ -24,7 +24,7 @@ export function WorkoutView({ w }: { w: GeneratedWorkout }) {
       {w.blocks.map((b) => (
         <section key={b.key} className="space-y-3">
           <div>
-            <h3 className="text-xl font-semibold">{b.label ? `Hlavní část: ${b.label}` : NAMES[b.key]} {!b.label && <span className="text-base font-normal text-muted">– {b.minutes} min</span>}</h3>
+            <h3 className="text-xl font-semibold">{blockTitle(b)} {showsMinutesChip(b) && <span className="text-base font-normal text-muted">– {b.minutes} min</span>}</h3>
             <p className="text-sm text-muted">{b.structure}</p>
           </div>
           <ol className="space-y-3">
