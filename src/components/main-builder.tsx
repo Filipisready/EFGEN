@@ -38,6 +38,15 @@ export const PRESETS: Record<'Kruhový trénink' | 'TRX', { label: string; layou
   ],
 }
 
+/** Cíl tréninku: předvyplní stavbu hlavní části a poměr kardio ↔ síla. Vše jde potom dál upravit. */
+export type Goal = { id: string; label: string; hint: string; ks: number; layout: Layout }
+export const GOALS: Goal[] = [
+  { id: 'kondice', label: 'Kondice a spalování', hint: 'Okruh 40/20, vyšší tep', ks: 2, layout: L({ stations: '8', rounds: '3', workSec: '40', restSec: '20', pauseSec: '60' }) },
+  { id: 'vytrvalost', label: 'Silová vytrvalost', hint: 'Bloky, 15 opakování', ks: 3, layout: L({ build: 'bloky', blocks: '3', stations: '5', rounds: '3', mode: 'opak', reps: '15', restBetweenSec: '10', pauseSec: '60', pauseBlocksSec: '90' }) },
+  { id: 'svaly', label: 'Svalová hmota', hint: 'Bloky, 10 opakování', ks: 4, layout: L({ build: 'bloky', blocks: '3', stations: '4', rounds: '4', mode: 'opak', reps: '10', restBetweenSec: '15', pauseSec: '90', pauseBlocksSec: '120' }) },
+  { id: 'sila', label: 'Síla', hint: 'Bloky, 5 opakování, delší pauzy', ks: 5, layout: L({ build: 'bloky', blocks: '3', stations: '3', rounds: '5', mode: 'opak', reps: '5', restBetweenSec: '20', pauseSec: '120', pauseBlocksSec: '150' }) },
+]
+
 const n = (s: string, d = 0) => (Number.isFinite(Number(s)) && s !== '' ? Number(s) : d)
 
 /** Parametry pro generátor. */

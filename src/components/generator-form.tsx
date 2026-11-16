@@ -8,7 +8,7 @@ import { SaveBar } from '@/components/save-bar'
 import { Alert, Field, btnCls, btn2Cls, inputCls } from '@/components/ui'
 import { Chip, ChipGroup, Section, Segmented, Stepper } from '@/components/controls'
 import { EQUIPMENT_GROUPS, MUSCLE_GROUPS, expandMuscle } from '@/lib/constants'
-import { DEFAULT_LAYOUT, MainBuilder, layoutMinutes, layoutParams, type Layout } from '@/components/main-builder'
+import { DEFAULT_LAYOUT, MainBuilder, layoutMinutes, layoutParams, GOALS, type Goal, type Layout } from '@/components/main-builder'
 
 const KS = ['Kardio', 'Spíše kardio', 'Vyváženě', 'Spíše síla', 'Síla']
 const STORE = 'efgen.generator.v1'
@@ -27,6 +27,7 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
   const [layout, setLayout] = useState<Layout>(DEFAULT_LAYOUT)
   const [cooldown, setCooldown] = useState('5')
   const [ks, setKs] = useState(3)
+  const [goal, setGoal] = useState<string | null>(null)
   const [groupSize, setGroupSize] = useState('')
   const [groupName, setGroupName] = useState('')
   const [title, setTitle] = useState('')
@@ -61,6 +62,13 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
   const total = (Number(warmup) || 0) + mainTotal + (Number(cooldown) || 0)
   const visibleEq = equipment.filter((o) => o.formats.includes(format))
   const eqLabel = (o: EquipmentOption) => (cf ? o.cf_label ?? o.name : o.name)
+
+  function pickGoal(g: Goal) {
+    if (goal === g.id) { setGoal(null); return }
+    setGoal(g.id)
+    setKs(g.ks)
+    if (!cf) setLayout(g.layout)
+  }
 
   function pickFormat(l: GeneratorInput['format']) {
     setFormat(l)
@@ -101,6 +109,16 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
 
         <Section n={2} title="Formát a časy">
           <Segmented name="format" label="Formát" value={format} options={['Kruhový trénink', 'TRX', 'CrossFit'] as const} onChange={pickFormat} />
+          <div className="space-y-1.5">
+            <p className="text-sm font-medium">Cíl tréninku <span className="font-normal text-muted">(nepovinné, předvyplní opakování, časy a kardio ↔ sílu, vše jde upravit)</span></p>
+            <div className="flex flex-wrap gap-2">
+              {GOALS.map((g) => (
+                <button key={g.id} type="button" aria-pressed={goal === g.id} title={g.hint} onClick={() => pickGoal(g)}
+                  className="min-h-10 rounded-full border border-line-strong bg-surface px-3.5 text-sm font-medium hover:bg-surface-2 aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-bg">{g.label}</button>
+              ))}
+            </div>
+            {goal && <p className="text-sm text-muted">{GOALS.find((g) => g.id === goal)?.hint}{cf ? ' (u CrossFitu se nastaví jen poměr kardio ↔ síla)' : ''}.</p>}
+          </div>
           {cf ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
@@ -133,7 +151,7 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
                 <Stepper label="Rozcvička" value={warmup} onChange={setWarmup} max={30} />
                 <Stepper label="Zklidnění" value={cooldown} onChange={setCooldown} max={30} />
               </div>
-              <MainBuilder format={format as 'Kruhový trénink' | 'TRX'} layout={layout} onChange={setLayout} />
+              <MainBuilder format={format as 'Kruhový trénink' | 'TRX'} layout={layout} onChange={(l) => { setGoal(null); setLayout(l) }} />
             </div>
           )}
           <p className="tnum text-sm text-muted">Celkem <b className="text-ink">{total} min</b>. Nula = blok vynechat.</p>
@@ -189,7 +207,7 @@ export function GeneratorForm({ equipment }: { equipment: EquipmentOption[] }) {
             <label className="flex items-baseline justify-between text-sm font-medium" htmlFor="ks">
               <span>Kardio ↔ síla</span><b className="text-base">{KS[ks - 1]}</b>
             </label>
-            <input id="ks" type="range" min={1} max={5} step={1} value={ks} onChange={(e) => setKs(Number(e.target.value))} className="h-11 w-full accent-ink" />
+            <input id="ks" type="range" min={1} max={5} step={1} value={ks} onChange={(e) => { setGoal(null); setKs(Number(e.target.value)) }} className="h-11 w-full accent-ink" />
             <div className="flex justify-between text-xs text-muted"><span>Kardio</span><span>Vyváženě</span><span>Síla</span></div>
           </div>
         </Section>
