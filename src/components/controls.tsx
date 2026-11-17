@@ -2,13 +2,15 @@
 import type { ReactNode } from 'react'
 
 /** Segmentovaný přepínač (jedna volba). Na telefonu velké cíle pro palec. */
-export function Segmented<T extends string>({ label, value, options, onChange, name, hint }: {
+export function Segmented<T extends string>({ label, value, options, onChange, name, hint, inset }: {
   label: string; value: T; options: readonly T[]; onChange: (v: T) => void; name: string; hint?: (v: T) => string | undefined
+  /** Přepínač leží na šedém podkladu (surface-2): vlastní podklad a rámeček, aby byl vidět celý. */
+  inset?: boolean
 }) {
   return (
     <fieldset className="space-y-2">
       <legend className="text-sm font-medium">{label}</legend>
-      <div className="grid gap-1 rounded-2xl bg-surface-2 p-1" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
+      <div className={`grid gap-1 rounded-2xl p-1 ${inset ? 'border border-line-strong bg-surface' : 'bg-surface-2'}`} style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
         {options.map((o) => (
           <label key={o} className="flex min-h-12 cursor-pointer select-none flex-col items-center justify-center rounded-xl px-2 text-center text-base font-medium transition has-[:checked]:bg-accent has-[:checked]:font-semibold has-[:checked]:text-accent-ink has-[:checked]:shadow-sm has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ink">
             <input type="radio" name={name} value={o} checked={value === o} onChange={() => onChange(o)} className="sr-only" />

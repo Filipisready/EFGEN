@@ -86,7 +86,7 @@ export function MainBuilder({ format, layout: l, onChange }: { format: 'Kruhový
         </div>
       </div>
 
-      <Segmented name="build" label="Stavba" value={bloky ? 'Bloky A, B, C' : 'Okruh'} options={['Okruh', 'Bloky A, B, C'] as const}
+      <Segmented inset name="build" label="Stavba" value={bloky ? 'Bloky A, B, C' : 'Okruh'} options={['Okruh', 'Bloky A, B, C'] as const}
         onChange={(v) => set(v === 'Okruh' ? { build: 'okruh', blocks: '1', mode: 'cas' } : { build: 'bloky', blocks: l.blocks === '1' ? '3' : l.blocks, stations: l.stations === '6' ? '5' : l.stations })} />
 
       {bloky ? (
@@ -104,7 +104,7 @@ export function MainBuilder({ format, layout: l, onChange }: { format: 'Kruhový
       )}
 
       {bloky && (
-        <Segmented name="mode" label="Způsob práce" value={l.mode === 'opak' ? 'Na opakování' : 'Na čas'} options={['Na čas', 'Na opakování'] as const}
+        <Segmented inset name="mode" label="Způsob práce" value={l.mode === 'opak' ? 'Na opakování' : 'Na čas'} options={['Na čas', 'Na opakování'] as const}
           onChange={(v) => set({ mode: v === 'Na čas' ? 'cas' : 'opak' })} />
       )}
 
