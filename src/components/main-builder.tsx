@@ -120,7 +120,7 @@ export function MainBuilder({ format, layout: l, onChange }: { format: 'Kruhový
         </div>
       )}
 
-      <div className={`grid gap-2 ${bloky ? 'grid-cols-2' : 'grid-cols-1 sm:max-w-[50%]'}`}>
+      <div className="grid grid-cols-1 gap-2">
         <Stepper label={bloky ? 'Pauza mezi sériemi' : 'Pauza mezi koly'} unit="s" value={l.pauseSec} onChange={(v) => set({ pauseSec: v })} min={0} max={900} step={15} />
         {bloky && <Stepper label="Pauza mezi bloky" unit="s" value={l.pauseBlocksSec} onChange={(v) => set({ pauseBlocksSec: v })} min={0} max={1200} step={15} />}
       </div>
