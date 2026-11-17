@@ -3,7 +3,7 @@ import { z } from 'zod'
 const str = (max: number) => z.string().max(max)
 const exercise = z.object({
   id: str(60), name: str(160), altName: str(160).optional(), description: str(600), videoUrl: str(500).nullable(),
-  muscle: str(30), level: str(30), equipment: z.array(str(60)).max(10), valueText: str(30).optional(), note: str(120).optional(), userNote: str(300).optional(),
+  muscle: str(30), level: str(30), equipment: z.array(str(60)).max(10), valueText: str(30).optional(), holdText: str(30).optional(), note: str(120).optional(), userNote: str(300).optional(),
 })
 const block = z.object({
   key: z.enum(['rozcvička', 'hlavní', 'zklidnění']), minutes: z.number().min(0).max(300), label: str(60).optional(),

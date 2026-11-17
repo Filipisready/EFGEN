@@ -18,7 +18,7 @@ export function recompute(w: GeneratedWorkout): GeneratedWorkout {
   const blocks = w.blocks.map((b, bi) => {
     const n = b.exercises.length
     if (b.key === 'hlavní' && circuit) {
-      const exercises = b.exercises.map((e) => ({ ...e, note: undefined, valueText: p.mode === 'opak' ? `${p.reps}×` : undefined }))
+      const exercises = b.exercises.map((e) => ({ ...e, note: undefined, valueText: p.mode === 'opak' ? (e.holdText ?? `${p.reps}×`) : undefined }))
       const pause = bi !== lastMain && p.pauseBlocksSec > 0 ? ` Potom pauza ${fmtSec(p.pauseBlocksSec)}.` : ''
       return {
         ...b, exercises,

@@ -67,6 +67,8 @@ export type WorkoutExercise = {
   equipment: string[]
   /** Čas / opakování připravené k zobrazení, např. „12×“, „30 s“. */
   valueText?: string
+  /** Cviky měřené časem nebo vzdáleností (výdrže) se v režimu na opakování zobrazí touto hodnotou, např. „30 s“. */
+  holdText?: string
   /** Pro EMOM: minuty, ve kterých se cvik dělá (počítá aplikace). */
   note?: string
   /** Poznámka trenéra ke cviku. */

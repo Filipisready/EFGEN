@@ -21,6 +21,7 @@ export function toWorkoutExercise(e: Exercise, withValue: boolean): WorkoutExerc
     id: e.id, name: e.name, altName: e.alt_name ?? undefined, description: e.description, videoUrl: e.video_url,
     muscle: e.muscle, level: e.level, equipment: e.equipment,
     valueText: withValue ? valueText(e) : undefined,
+    holdText: e.unit !== 'opakování' ? valueText(e) : undefined,
   }
 }
 

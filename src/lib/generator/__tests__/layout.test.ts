@@ -27,7 +27,7 @@ test('silové bloky A, B, C: 3 × 5 cviků, 3 série po 3 opakováních, pauzy 2
   assert.equal(m.length, 3)
   assert.deepEqual(m.map((b) => b.label), ['Blok A', 'Blok B', 'Blok C'])
   assert.ok(m.every((b) => b.exercises.length === 5))
-  assert.ok(m.every((b) => b.exercises.every((e) => e.valueText === '3×')))
+  assert.ok(m.every((b) => b.exercises.every((e) => e.valueText === (e.holdText ?? '3×'))))
   // blok: 5 cviků × 3 série × (3 × 4 s) + 2 × 120 s pauza = 420 s = 7 min
   assert.ok(m.every((b) => b.minutes === 7), m.map((b) => b.minutes).join(','))
   // celkem: 5 + 3 × 7 + 2 × 2 min pauzy mezi bloky + 5
@@ -73,7 +73,7 @@ test('úprava: odebrání cviku změní čas jen toho bloku, změna režimu pře
   assert.equal(after[0], before[0]); assert.equal(after[2], before[2])
   assert.ok(after[1] < before[1])
   w = setParams(w, { reps: 5 })
-  assert.ok(mains(w).every((b) => b.exercises.every((e) => e.valueText === '5×')))
+  assert.ok(mains(w).every((b) => b.exercises.every((e) => e.valueText === (e.holdText ?? '5×'))))
   w = setParams(w, { mode: 'cas', workSec: 40, restSec: 20 })
   assert.ok(mains(w).every((b) => b.exercises.every((e) => !e.valueText)))
   assert.match(mains(w)[0].structure, /40 s práce \/ 20 s přechod/)
